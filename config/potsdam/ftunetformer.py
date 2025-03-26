@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 from geoseg.losses import *
 from geoseg.datasets.potsdam_dataset import *
-from geoseg.models.FTUNetFormer import ft_unetformer
+from geoseg.models.FTUNetFormer_my import ft_unetformer
 from tools.utils import Lookahead
 from tools.utils import process_model_params
 
