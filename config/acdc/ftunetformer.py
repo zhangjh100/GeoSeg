@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 from geoseg.losses import *
-from geoseg.datasets.vaihingen_dataset import *
+from geoseg.datasets.acdc_dataset import *
 from geoseg.models.FTUNetFormer_my import ft_unetformer
 from tools.utils import Lookahead
 from tools.utils import process_model_params
@@ -18,9 +18,9 @@ num_classes = len(CLASSES)
 classes = CLASSES
 
 weights_name = "ftunetformer-512-ms-crop"
-weights_path = "model_weights/vaihingen/{}".format(weights_name)
+weights_path = "model_weights/acdc/{}".format(weights_name)
 test_weights_name = "ftunetformer-512-ms-crop"
-log_name = 'vaihingen/{}'.format(weights_name)
+log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
 save_top_k = 1
@@ -41,11 +41,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = VaihingenDataset(data_root='data/vaihingen/train', mode='train',
+train_dataset = acdcDataset(data_root='data/acdc/train_images', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
-val_dataset = VaihingenDataset(transform=val_aug)
-test_dataset = VaihingenDataset(data_root='data/vaihingen/test',
+val_dataset = acdcDataset(transform=val_aug)
+test_dataset = acdcDataset(data_root='data/acdc/test_images.',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
