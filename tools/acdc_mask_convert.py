@@ -71,7 +71,6 @@ if __name__ == "__main__":
     args = parse_args()
     masks_dir = args.mask_dir
     masks_output_dir = args.output_mask_dir
-    print(masks_dir, masks_output_dir)
     mask_paths = glob.glob(os.path.join(masks_dir, "*.tif"))
 
     if not os.path.exists(masks_output_dir):

@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-512-ms-crop"
+weights_name = "ftunetformer-128-ms-crop"
 weights_path = "model_weights/acdc/{}".format(weights_name)
-test_weights_name = "ftunetformer-512-ms-crop"
+test_weights_name = "ftunetformer-128-ms-crop"
 log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -41,11 +41,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc', mode='train',
+train_dataset = acdcDataset(data_root='data/acdc/train_images', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc',
+test_dataset = acdcDataset(data_root='data/acdc/test_images',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
