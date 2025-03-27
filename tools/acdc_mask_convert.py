@@ -28,8 +28,8 @@ def seed_everything(seed):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mask_dir", default="data/acdc/train_masks")
-    parser.add_argument("--output_mask_dir", default="data/acdc/train_masks_convert")
+    parser.add_argument("--mask_dir", default="data/acdc/test_masks")
+    parser.add_argument("--output_mask_dir", default="data/acdc/test_masks_convert")
     return parser.parse_args()
 
 
