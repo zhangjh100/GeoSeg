@@ -69,7 +69,7 @@ class acdcDataset(Dataset):
 
     def __getitem__(self, index):
         p_ratio = random.random()
-        if p_ratio > self.mosaic_ratio or self.mode == 'val' or self.mode == 'test':
+        if p_ratio > self.mosaic_ratio or self.mode == 'val' or self.mode == 'train':
             img, mask = self.load_img_and_mask(index)
             if self.transform:
                 img, mask = self.transform(img, mask)
