@@ -13,7 +13,7 @@ import random
 from .transform import *
 
 CLASSES = ('background', 'LV', 'Myo', 'RV')
-PALETTE = [[4, 4, 4], [170, 170, 170], [113, 113, 113], [56, 56, 56]]
+PALETTE = [[0, 0, 0], [171, 171, 171], [114, 114, 114], [57, 57, 57]]
 
 ORIGIN_IMG_SIZE = (256, 256)
 INPUT_IMG_SIZE = (256, 256)
