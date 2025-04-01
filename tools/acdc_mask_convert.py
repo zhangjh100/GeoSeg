@@ -60,8 +60,8 @@ def process_masks(input_dir, output_dir, label_mapping):
 
 # 示例用法
 if __name__ == "__main__":
-    input_dir = './data/acdc/test_masks'  # 替换为你的输入目录路径
-    output_dir = './data/acdc/test/test_masks_convert'  # 替换为你的输出目录路径
+    input_dir = './data/acdc/train_masks'  # 替换为你的输入目录路径
+    output_dir = './data/acdc/train/train_masks_convert'  # 替换为你的输出目录路径
     label_mapping = {
         0: 0,  # 将像素值为4的区域改为类别0
         171: 1,  # 将像素值为170的区域改为类别1
