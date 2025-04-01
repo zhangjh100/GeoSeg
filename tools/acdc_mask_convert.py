@@ -44,10 +44,10 @@ def label2rgb(mask):
     h, w = mask.shape[0], mask.shape[1]
     mask_rgb = np.zeros(shape=(h, w, 3), dtype=np.uint8)
     mask_convert = mask[np.newaxis, :, :]
-    mask_rgb[np.all(mask_convert == 0, axis=0)] = [4, 4, 4]
-    mask_rgb[np.all(mask_convert == 1, axis=0)] = [170, 170, 170]
-    mask_rgb[np.all(mask_convert == 2, axis=0)] = [113, 113, 113]
-    mask_rgb[np.all(mask_convert == 3, axis=0)] = [56, 56, 56]
+    mask_rgb[np.all(mask_convert == 0, axis=0)] = [0, 0, 0]
+    mask_rgb[np.all(mask_convert == 1, axis=0)] = [1, 1, 1]
+    mask_rgb[np.all(mask_convert == 2, axis=0)] = [2, 2, 2]
+    mask_rgb[np.all(mask_convert == 3, axis=0)] = [3, 3, 3]
     return mask_rgb
 
 
