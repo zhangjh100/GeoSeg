@@ -28,8 +28,8 @@ def seed_everything(seed):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mask_dir", default="data/acdc/test_masks")
-    parser.add_argument("--output_mask_dir", default="data/acdc/test_masks_convert")
+    parser.add_argument("--mask_dir", default="data/acdc/train_masks")
+    parser.add_argument("--output_mask_dir", default="data/acdc/train_masks_convert")
     return parser.parse_args()
 
 
@@ -44,10 +44,10 @@ def label2rgb(mask):
     h, w = mask.shape[0], mask.shape[1]
     mask_rgb = np.zeros(shape=(h, w, 3), dtype=np.uint8)
     mask_convert = mask[np.newaxis, :, :]
-    mask_rgb[np.all(mask_convert == 0, axis=0)] = [0, 0, 0]
-    mask_rgb[np.all(mask_convert == 1, axis=0)] = [171, 171, 171]
-    mask_rgb[np.all(mask_convert == 2, axis=0)] = [114, 114, 114]
-    mask_rgb[np.all(mask_convert == 3, axis=0)] = [57, 57, 57]
+    mask_rgb[np.all(mask_convert == 0, axis=0)] = [4, 4, 4]
+    mask_rgb[np.all(mask_convert == 1, axis=0)] = [170, 170, 170]
+    mask_rgb[np.all(mask_convert == 2, axis=0)] = [113, 113, 113]
+    mask_rgb[np.all(mask_convert == 3, axis=0)] = [56, 56, 56]
     return mask_rgb
 
 
