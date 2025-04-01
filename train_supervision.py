@@ -51,7 +51,7 @@ class Supervision_Train(pl.LightningModule):
         img, mask = batch['img'], batch['gt_semantic_seg']
 
         prediction = self.net(img)
-        loss = self.loss(prediction, mask) + 1e-6
+        loss = self.loss(prediction, mask)
 
         if self.config.use_aux_loss:
             pre_mask = nn.Softmax(dim=1)(prediction[0])
