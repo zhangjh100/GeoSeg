@@ -13,7 +13,7 @@ SEED = 42
 
 CLASSES = ('background', 'LV', 'Myo', 'RV')
 
-PALETTE = [[0, 0, 0], [171, 171, 171], [114, 114, 114], [57, 57, 57]]
+PALETTE = [[4, 4, 4], [170, 170, 170], [113, 113, 113], [56, 56, 56]]
 
 
 def seed_everything(seed):
