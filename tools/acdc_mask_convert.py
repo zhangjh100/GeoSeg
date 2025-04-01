@@ -36,9 +36,9 @@ num_classes = 4
 # split huge RS image to small patches
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--img-dir", default="data/acdc/train_images")
+    # parser.add_argument("--img-dir", default="data/acdc/train_images")
     parser.add_argument("--mask-dir", default="data/acdc/train_masks")
-    parser.add_argument("--output-img-dir", default="data/acdc/train/train_images")
+    # parser.add_argument("--output-img-dir", default="data/acdc/train/train_images")
     parser.add_argument("--output-mask-dir", default="data/acdc/train/train_masks_convert")
     # parser.add_argument("--eroded", action='store_true')
     # parser.add_argument("--gt", action='store_true')
@@ -170,10 +170,10 @@ def rgb_to_2D_label(_label):
 
 
 def acdc_format(inp):
-    (img_path, mask_path, imgs_output_dir, masks_output_dir, mode, val_scale) = inp
-    img_filename = os.path.splitext(os.path.basename(img_path))[0]
+    (mask_path, masks_output_dir) = inp
+    # img_filename = os.path.splitext(os.path.basename(img_path))[0]
     mask_filename = os.path.splitext(os.path.basename(mask_path))[0]
-    img = Image.open(img_path).convert('RGB')
+    # img = Image.open(img_path).convert('RGB')
     mask = Image.open(mask_path).convert('RGB')
     # if gt:
     #     mask_ = car_color_replace(mask)
@@ -227,9 +227,9 @@ def acdc_format(inp):
 if __name__ == "__main__":
     seed_everything(SEED)
     args = parse_args()
-    imgs_dir = args.img_dir
+    # imgs_dir = args.img_dir
     masks_dir = args.mask_dir
-    imgs_output_dir = args.output_img_dir
+    # imgs_output_dir = args.output_img_dir
     masks_output_dir = args.output_mask_dir
     # gt = args.gt
     # eroded = args.eroded
@@ -237,25 +237,25 @@ if __name__ == "__main__":
     # val_scale = args.val_scale
     # split_size = args.split_size
     # stride = args.stride
-    img_paths = glob.glob(os.path.join(imgs_dir, "*.tif"))
+    # img_paths = glob.glob(os.path.join(imgs_dir, "*.tif"))
     mask_paths_raw = glob.glob(os.path.join(masks_dir, "*.tif"))
     # if eroded:
     #     mask_paths = [(p[:-15] + '.tif') for p in mask_paths_raw]
     # else:
     #     mask_paths = mask_paths_raw
     mask_paths = mask_paths_raw
-    img_paths.sort()
+    # img_paths.sort()
     mask_paths.sort()
 
-    if not os.path.exists(imgs_output_dir):
-        os.makedirs(imgs_output_dir)
+    # if not os.path.exists(imgs_output_dir):
+    #     os.makedirs(imgs_output_dir)
     if not os.path.exists(masks_output_dir):
         os.makedirs(masks_output_dir)
         # if gt:
         #     os.makedirs(masks_output_dir+'/origin')
 
-    inp = [(img_path, mask_path, imgs_output_dir, masks_output_dir)
-           for img_path, mask_path in zip(img_paths, mask_paths)]
+    inp = [(mask_path, masks_output_dir)
+           for mask_path in zip(mask_paths)]
 
     t0 = time.time()
     mpp.Pool(processes=mp.cpu_count()).map(acdc_format, inp)
