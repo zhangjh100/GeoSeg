@@ -63,10 +63,10 @@ if __name__ == "__main__":
     input_dir = './data/acdc/test_masks'  # 替换为你的输入目录路径
     output_dir = './data/acdc/test/test_masks_convert'  # 替换为你的输出目录路径
     label_mapping = {
-        4: 0,  # 将像素值为4的区域改为类别0
-        170: 1,  # 将像素值为170的区域改为类别1
-        113: 2,  # 将像素值为113的区域改为类别2
-        56: 3  # 将像素值为56的区域改为类别3
+        0: 0,  # 将像素值为4的区域改为类别0
+        171: 1,  # 将像素值为170的区域改为类别1
+        114: 2,  # 将像素值为113的区域改为类别2
+        57: 3  # 将像素值为56的区域改为类别3
     }
 
     process_masks(input_dir, output_dir, label_mapping)
