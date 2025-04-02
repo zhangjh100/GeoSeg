@@ -50,7 +50,7 @@ def resize_images(input_dir, output_dir, target_size=(512, 512)):
 
 # 示例用法
 if __name__ == "__main__":
-    input_dir = 'data/acdc/test/test_images'  # 替换为你的输入目录路径
-    output_dir = 'data/acdc/test/test_images_0'  # 替换为你的输出目录路径
+    input_dir = 'data/acdc/train/train_masks_convert'  # 替换为你的输入目录路径
+    output_dir = 'data/acdc/train/train_masks_convert_0'  # 替换为你的输出目录路径
 
     resize_images(input_dir, output_dir)
