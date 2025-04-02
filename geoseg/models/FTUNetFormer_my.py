@@ -1202,22 +1202,23 @@ def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_chan
                          num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
 
-    if pretrained and weight_path is not None:
-        old_dict = torch.load(weight_path)['state_dict']
-        model_dict = model.state_dict()
-        old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
-        model_dict.update(old_dict)
-        model.load_state_dict(model_dict)
-    return model
     # if pretrained and weight_path is not None:
-    #     # old_dict = torch.load(weight_path)['state_dict']
-    #     old_dict = torch.load(weight_path)['model']
+    #     old_dict = torch.load(weight_path)['state_dict']
     #     model_dict = model.state_dict()
-    #     del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
-    #     for k in del_keys:
-    #         del old_dict[k]
-    #     old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
+    #     old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
     #     model_dict.update(old_dict)
     #     model.load_state_dict(model_dict)
-    #     print('Load weight ', weight_path)
     # return model
+
+    if pretrained and weight_path is not None:
+        old_dict = torch.load(weight_path)['state_dict']
+        # old_dict = torch.load(weight_path)['model']
+        model_dict = model.state_dict()
+        del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
+        for k in del_keys:
+            del old_dict[k]
+        old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
+        model_dict.update(old_dict)
+        model.load_state_dict(model_dict)
+        print('Load weight ', weight_path)
+    return model
