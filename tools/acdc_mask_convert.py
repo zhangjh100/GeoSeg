@@ -62,11 +62,16 @@ def process_masks(input_dir, output_dir, label_mapping):
 if __name__ == "__main__":
     input_dir = './data/acdc/train_masks'  # 替换为你的输入目录路径
     output_dir = './data/acdc/train/train_masks_convert'  # 替换为你的输出目录路径
+    # label_mapping = {
+    #     0: 0,  # 将像素值为4的区域改为类别0
+    #     171: 1,  # 将像素值为170的区域改为类别1
+    #     114: 2,  # 将像素值为113的区域改为类别2
+    #     57: 3  # 将像素值为56的区域改为类别3
+    # }
     label_mapping = {
-        0: 0,  # 将像素值为4的区域改为类别0
-        171: 1,  # 将像素值为170的区域改为类别1
-        114: 2,  # 将像素值为113的区域改为类别2
-        57: 3  # 将像素值为56的区域改为类别3
+        171: 0,  # 将像素值为171的区域改为类别0
+        114: 1,  # 将像素值为114的区域改为类别1
+        57: 2  # 将像素值为57的区域改为类别2
     }
 
     process_masks(input_dir, output_dir, label_mapping)

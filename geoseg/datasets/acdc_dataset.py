@@ -12,9 +12,11 @@ from PIL import Image
 import random
 from .transform import *
 
-CLASSES = ('background', 'LV', 'Myo', 'RV')
+# CLASSES = ('background', 'LV', 'Myo', 'RV')
+CLASSES = ('LV', 'Myo', 'RV')
 # PALETTE = [[0, 0, 0], [171, 171, 171], [114, 114, 114], [57, 57, 57]]
-PALETTE = [[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3]]
+PALETTE = [[171, 171, 171], [114, 114, 114], [57, 57, 57]]
+# PALETTE = [[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3]]
 
 ORIGIN_IMG_SIZE = (512, 512)
 INPUT_IMG_SIZE = (512, 512)
