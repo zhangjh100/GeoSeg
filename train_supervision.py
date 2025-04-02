@@ -12,7 +12,7 @@ from tools.metric import Evaluator
 from pytorch_lightning.loggers import CSVLogger
 import random
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 def seed_everything(seed):
     random.seed(seed)
