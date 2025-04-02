@@ -1133,6 +1133,24 @@ class Decoder(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
+#   new added module
+class Classifier_Module(nn.Module):
+    def __init__(self, inplanes, dilation_series, padding_series, num_classes):
+        super(Classifier_Module, self).__init__()
+        self.conv2d_list = nn.ModuleList()
+        for dilation, padding in zip(dilation_series, padding_series):
+            self.conv2d_list.append(
+                nn.Conv2d(inplanes, num_classes, kernel_size=3, stride=1, padding=padding, dilation=dilation, bias=True))
+
+        for m in self.conv2d_list:
+            m.weight.data.normal_(0, 0.01)
+
+    def forward(self, x):
+        out = self.conv2d_list[0](x)
+        for i in range(len(self.conv2d_list) - 1):
+            out += self.conv2d_list[i + 1](x)
+            return out
+
 class SCSEModule(nn.Module):
     def __init__(self, ch, re=16):
         super().__init__()
@@ -1164,6 +1182,10 @@ class FTUNetFormer(nn.Module):
         encoder_channels = [embed_dim, embed_dim*2, embed_dim*4, embed_dim*8]
         self.decoder = Decoder(encoder_channels, decode_channels, dropout, window_size, num_classes)
 
+    #   new added module like SSRS
+    def _make_pred_layer(self, block, inplanes, dilation_series, padding_series, num_classes):
+        return block(inplanes, dilation_series, padding_series, num_classes)
+
     def forward(self, x):
         h, w = x.size()[-2:]
         res1, res2, res3, res4 = self.backbone(x)
@@ -1172,7 +1194,7 @@ class FTUNetFormer(nn.Module):
 
 
 def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_channels=256,
-                  weight_path='pretrain_weights/stseg_base.pth'):
+                  weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
     model = FTUNetFormer(num_classes=num_classes,
                          freeze_stages=freeze_stages,
                          embed_dim=128,
@@ -1180,22 +1202,22 @@ def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_chan
                          num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
 
-    if pretrained and weight_path is not None:
-        old_dict = torch.load(weight_path)['state_dict']
-        model_dict = model.state_dict()
-        old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
-        model_dict.update(old_dict)
-        model.load_state_dict(model_dict)
-    return model
     # if pretrained and weight_path is not None:
-    #     # old_dict = torch.load(weight_path)['state_dict']
-    #     old_dict = torch.load(weight_path)['model']
+    #     old_dict = torch.load(weight_path)['state_dict']
     #     model_dict = model.state_dict()
-    #     del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
-    #     for k in del_keys:
-    #         del old_dict[k]
-    #     old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
+    #     old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
     #     model_dict.update(old_dict)
     #     model.load_state_dict(model_dict)
-    #     print('Load weight ', weight_path)
     # return model
+    if pretrained and weight_path is not None:
+        # old_dict = torch.load(weight_path)['state_dict']
+        old_dict = torch.load(weight_path)['model']
+        model_dict = model.state_dict()
+        del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
+        for k in del_keys:
+            del old_dict[k]
+        old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
+        model_dict.update(old_dict)
+        model.load_state_dict(model_dict)
+        print('Load weight ', weight_path)
+    return model
