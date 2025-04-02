@@ -1211,8 +1211,8 @@ def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_chan
     # return model
 
     if pretrained and weight_path is not None:
-        old_dict = torch.load(weight_path)['state_dict']
-        # old_dict = torch.load(weight_path)['model']
+        # old_dict = torch.load(weight_path)['state_dict']
+        old_dict = torch.load(weight_path)['model']
         model_dict = model.state_dict()
         del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
         for k in del_keys:
