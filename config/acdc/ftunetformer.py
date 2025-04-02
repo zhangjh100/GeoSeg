@@ -8,7 +8,7 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 45
 ignore_index = len(CLASSES)
-train_batch_size = 16
+train_batch_size = 8
 val_batch_size = 4
 lr = 6e-4
 weight_decay = 2.5e-4
