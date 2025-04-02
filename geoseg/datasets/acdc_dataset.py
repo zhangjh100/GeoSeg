@@ -15,9 +15,9 @@ from .transform import *
 CLASSES = ('background', 'LV', 'Myo', 'RV')
 PALETTE = [[0, 0, 0], [171, 171, 171], [114, 114, 114], [57, 57, 57]]
 
-ORIGIN_IMG_SIZE = (256, 256)
-INPUT_IMG_SIZE = (256, 256)
-TEST_IMG_SIZE = (256, 256)
+ORIGIN_IMG_SIZE = (512, 512)
+INPUT_IMG_SIZE = (512, 512)
+TEST_IMG_SIZE = (512, 512)
 
 
 def get_training_transform():
@@ -30,7 +30,7 @@ def get_training_transform():
 
 def train_aug(img, mask):
     crop_aug = Compose([RandomScale(scale_list=[0.5, 0.75, 1.0, 1.25, 1.5], mode='value'),
-                        SmartCropV1(crop_size=256, max_ratio=0.75,
+                        SmartCropV1(crop_size=512, max_ratio=0.75,
                                     ignore_index=len(CLASSES), nopad=False)])
     img, mask = crop_aug(img, mask)
     img, mask = np.array(img), np.array(mask)
@@ -54,7 +54,7 @@ def val_aug(img, mask):
 
 
 class acdcDataset(Dataset):
-    def __init__(self, data_root='data/acdc/train', mode='train', img_dir='train_images', mask_dir='train_masks_convert',
+    def __init__(self, data_root='data/acdc/train', mode='train', img_dir='train_images_0', mask_dir='train_masks_convert_0',
                  img_suffix='.tif', mask_suffix='.tif', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root
