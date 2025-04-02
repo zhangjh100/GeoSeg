@@ -1219,6 +1219,6 @@ def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_chan
             del old_dict[k]
         old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
         model_dict.update(old_dict)
-        model.load_state_dict(model_dict)
+        # model.load_state_dict(model_dict)
         print('Load weight ', weight_path)
     return model
