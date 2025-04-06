@@ -12,11 +12,11 @@ from PIL import Image
 import random
 from .transform import *
 
-# CLASSES = ('background', 'LV', 'Myo', 'RV')
-CLASSES = ('LV', 'Myo', 'RV')
-# PALETTE = [[0, 0, 0], [171, 171, 171], [114, 114, 114], [57, 57, 57]]
+CLASSES = ('background', 'LV', 'Myo', 'RV')
+# CLASSES = ('LV', 'Myo', 'RV')
+PALETTE = [[0, 0, 0], [171, 171, 171], [114, 114, 114], [57, 57, 57]]
 # PALETTE = [[171, 171, 171], [114, 114, 114], [57, 57, 57]]
-PALETTE = [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
+# PALETTE = [[1, 1, 1], [2, 2, 2], [3, 3, 3]]
 
 ORIGIN_IMG_SIZE = (256, 256)
 INPUT_IMG_SIZE = (256, 256)
@@ -57,7 +57,7 @@ def val_aug(img, mask):
 
 
 class acdcDataset(Dataset):
-    def __init__(self, data_root='data/acdc/train', mode='train', img_dir='train_images', mask_dir='train_masks_convert',
+    def __init__(self, data_root='data/acdc/train', mode='train', img_dir='train_images', mask_dir='train_masks_convert_0',
                  img_suffix='.tif', mask_suffix='.tif', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root
