@@ -132,7 +132,7 @@ class Supervision_Train(pl.LightningModule):
         elif 'acdc' in self.config.log_name:
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union()[:-1])
             F1 = np.nanmean(self.metrics_val.F1()[:-1])
-            Recall = np.nanmean(self.metrics_val.Reacll()[:-1])
+            Recall = np.nanmean(self.metrics_val.Recall()[:-1])
             Dice = np.nanmean(self.metrics_val.Dice()[:-1])
             JAC = np.nanmean(self.metrics_val.JAC()[:-1])
         else:
