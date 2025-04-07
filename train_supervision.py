@@ -138,7 +138,7 @@ class Supervision_Train(pl.LightningModule):
         else:
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union())
             F1 = np.nanmean(self.metrics_val.F1())
-            Recall = np.nanmean(self.metrics_val.Reacll()[:-1])
+            Recall = np.nanmean(self.metrics_val.Recall()[:-1])
 
         OA = np.nanmean(self.metrics_val.OA())
         iou_per_class = self.metrics_val.Intersection_over_Union()
