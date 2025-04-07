@@ -132,16 +132,23 @@ class Supervision_Train(pl.LightningModule):
         elif 'acdc' in self.config.log_name:
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union()[:-1])
             F1 = np.nanmean(self.metrics_val.F1()[:-1])
+            Recall = np.nanmean(self.metrics_val.Reacll()[:-1])
+            Dice = np.nanmean(self.metrics_val.Dice()[:-1])
+            JAC = np.nanmean(self.metrics_val.JAC()[:-1])
         else:
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union())
             F1 = np.nanmean(self.metrics_val.F1())
+            Recall = np.nanmean(self.metrics_val.Reacll()[:-1])
 
         OA = np.nanmean(self.metrics_val.OA())
         iou_per_class = self.metrics_val.Intersection_over_Union()
 
         eval_value = {'mIoU': mIoU,
                       'F1': F1,
-                      'OA': OA}
+                      'OA': OA,
+                      'Recall': Recall,
+                      'Dice': Dice,
+                      'JAC': JAC}
         print('val:', eval_value)
         iou_value = {}
         for class_name, iou in zip(self.config.classes, iou_per_class):
@@ -149,7 +156,7 @@ class Supervision_Train(pl.LightningModule):
         print(iou_value)
 
         self.metrics_val.reset()
-        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA}
+        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA, 'val_Recall': Recall, 'val_Dice': Dice, 'val_JAC': JAC }
         self.log_dict(log_dict, prog_bar=True)
 
     def configure_optimizers(self):

@@ -45,6 +45,11 @@ class Evaluator(object):
         Dice = 2 * tp / ((tp + fp) + (tp + fn))
         return Dice
 
+    def JAC(self):
+        tp, fp, tn, fn = self.get_tp_fp_tn_fn()
+        JAC = tp / (tp + fp + fn)
+        return JAC
+
     def Pixel_Accuracy_Class(self):
         #         TP                                  TP+FP
         Acc = np.diag(self.confusion_matrix) / (self.confusion_matrix.sum(axis=0) + self.eps)
