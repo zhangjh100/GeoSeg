@@ -102,7 +102,7 @@ def main():
         results = []
         for input in tqdm(test_loader):
             # raw_prediction NxCxHxW
-            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            device = torch.device('cpu')
             raw_predictions = model(input['img'].to(device))
             # raw_predictions = model(input['img'].cuda())
 
