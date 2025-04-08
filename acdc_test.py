@@ -102,6 +102,7 @@ def main():
         results = []
         for input in tqdm(test_loader):
             # raw_prediction NxCxHxW
+            input = input.cuda()
             raw_predictions = model(input['img'].cuda())
 
             image_ids = input["img_id"]
