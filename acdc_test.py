@@ -65,8 +65,8 @@ def main():
     args.output_path.mkdir(exist_ok=True, parents=True)
 
     model = Supervision_Train.load_from_checkpoint(
-        os.path.join(config.weights_path, config.test_weights_name + '.ckpt'), config=config)
-    # model.cuda()
+        os.path.join(config.weights_path, config.test_weights_name + '-v1.ckpt'), config=config)
+    model.cuda()
     model.eval()
     evaluator = Evaluator(num_class=config.num_classes)
     evaluator.reset()
