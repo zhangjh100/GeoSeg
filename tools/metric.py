@@ -42,8 +42,8 @@ class Evaluator(object):
 
     def Dice(self):
         tp, fp, tn, fn = self.get_tp_fp_tn_fn()
-        Dice = 2 * tp / ((tp + fp) + (tp + fn))
-        return Dice
+        dice = 2 * tp / ((tp + fp) + (tp + fn))
+        return dice
 
     def JAC(self):
         tp, fp, tn, fn = self.get_tp_fp_tn_fn()

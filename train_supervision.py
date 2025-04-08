@@ -133,7 +133,7 @@ class Supervision_Train(pl.LightningModule):
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union()[:-1])
             F1 = np.nanmean(self.metrics_val.F1()[:-1])
             Recall = np.nanmean(self.metrics_val.Recall()[:-1])
-            Dice = np.nanmean(self.metrics_val.Dice()[:-1])
+            dice = np.nanmean(self.metrics_val.Dice()[:-1])
             JAC = np.nanmean(self.metrics_val.JAC()[:-1])
         else:
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union())
@@ -147,7 +147,7 @@ class Supervision_Train(pl.LightningModule):
                       'F1': F1,
                       'OA': OA,
                       'Recall': Recall,
-                      'Dice': Dice,
+                      'Dice': dice,
                       'JAC': JAC}
         print('val:', eval_value)
         iou_value = {}
@@ -156,7 +156,7 @@ class Supervision_Train(pl.LightningModule):
         print(iou_value)
 
         self.metrics_val.reset()
-        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA, 'val_Recall': Recall, 'val_Dice': Dice, 'val_JAC': JAC }
+        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA, 'val_Recall': Recall, 'val_Dice': dice, 'val_JAC': JAC }
         self.log_dict(log_dict, prog_bar=True)
 
     def configure_optimizers(self):
