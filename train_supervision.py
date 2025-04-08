@@ -93,7 +93,7 @@ class Supervision_Train(pl.LightningModule):
         OA = np.nanmean(self.metrics_train.OA())
         iou_per_class = self.metrics_train.Intersection_over_Union()
         eval_value = {'mIoU': mIoU,
-                      'Dice': F1,
+                      'F1': F1,
                       'OA': OA}
         print('train:', eval_value)
 
@@ -102,7 +102,7 @@ class Supervision_Train(pl.LightningModule):
             iou_value[class_name] = iou
         print(iou_value)
         self.metrics_train.reset()
-        log_dict = {'train_mIoU': mIoU, 'train_Dice': F1, 'train_OA': OA}
+        log_dict = {'train_mIoU': mIoU, 'train_f': F1, 'train_OA': OA}
         self.log_dict(log_dict, prog_bar=True)
 
     def validation_step(self, batch, batch_idx):
@@ -151,7 +151,7 @@ class Supervision_Train(pl.LightningModule):
         iou_per_class = self.metrics_val.Intersection_over_Union()
 
         eval_value = {'mIoU': mIoU,
-                      'Dice': F1,
+                      'F1': F1,
                       'OA': OA,
                       'Recall': Recall,
                       'JAC': JAC}
@@ -162,7 +162,7 @@ class Supervision_Train(pl.LightningModule):
         print(iou_value)
 
         self.metrics_val.reset()
-        log_dict = {'val_mIoU': mIoU, 'val_Dice': F1, 'val_OA': OA, 'val_Recall': Recall, 'val_JAC': JAC }
+        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA, 'val_Recall': Recall, 'val_JAC': JAC }
         self.log_dict(log_dict, prog_bar=True)
 
     def configure_optimizers(self):
