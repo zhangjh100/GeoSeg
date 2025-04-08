@@ -102,8 +102,9 @@ def main():
         results = []
         for input in tqdm(test_loader):
             # raw_prediction NxCxHxW
-            input = input.cuda()
-            raw_predictions = model(input['img'].cuda())
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            raw_predictions = model(input['img'].to(device))
+            # raw_predictions = model(input['img'].cuda())
 
             image_ids = input["img_id"]
             masks_true = input['gt_semantic_seg']
