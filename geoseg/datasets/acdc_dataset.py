@@ -57,7 +57,7 @@ def val_aug(img, mask):
 
 
 class acdcDataset(Dataset):
-    def __init__(self, data_root='data/acdc/test', mode='test', img_dir='test_images', mask_dir='test_masks_convert_0',
+    def __init__(self, data_root='data/acdc', mode='train', img_dir='train_images', mask_dir='train_masks_convert_0',
                  img_suffix='.tif', mask_suffix='.tif', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root
