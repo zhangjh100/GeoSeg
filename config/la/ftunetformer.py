@@ -8,7 +8,7 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 50
 ignore_index = len(CLASSES)
-train_batch_size = 16
+train_batch_size = 32
 val_batch_size = 16
 lr = 6e-4
 weight_decay = 2.5e-4
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = laDataset(data_root='data/la_2018/train', mode='train',
+train_dataset = laDataset(data_root='data/la_2018/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = laDataset(transform=val_aug)
-test_dataset = laDataset(data_root='data/la_2018/train',
+test_dataset = laDataset(data_root='data/la_2018/test',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
