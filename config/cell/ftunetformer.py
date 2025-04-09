@@ -6,7 +6,7 @@ from tools.utils import Lookahead
 from tools.utils import process_model_params
 
 # training hparam
-max_epoch = 50
+max_epoch = 150
 ignore_index = len(CLASSES)
 train_batch_size = 16
 val_batch_size = 16
