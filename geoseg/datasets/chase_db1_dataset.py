@@ -15,9 +15,9 @@ from .transform import *
 CLASSES = ('background', 'blood vessels')
 PALETTE = [[0, 0, 0], [255, 255, 255]]
 
-ORIGIN_IMG_SIZE = (999, 960)
-INPUT_IMG_SIZE = (999, 960)
-TEST_IMG_SIZE = (999, 960)
+ORIGIN_IMG_SIZE = (1024, 1024)
+INPUT_IMG_SIZE = (1024, 1024)
+TEST_IMG_SIZE = (1024, 1024)
 
 
 def get_training_transform():
