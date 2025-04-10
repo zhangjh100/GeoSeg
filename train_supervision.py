@@ -92,6 +92,9 @@ class Supervision_Train(pl.LightningModule):
         elif 'cell' in self.config.log_name:
             mIoU = np.nanmean(self.metrics_train.Intersection_over_Union()[:-1])
             F1 = np.nanmean(self.metrics_train.F1()[:-1])
+        elif 'chase_db1' in self.config.log_name:
+            mIoU = np.nanmean(self.metrics_train.Intersection_over_Union()[:-1])
+            F1 = np.nanmean(self.metrics_train.F1()[:-1])
         else:
             mIoU = np.nanmean(self.metrics_train.Intersection_over_Union())
             F1 = np.nanmean(self.metrics_train.F1())
@@ -154,6 +157,11 @@ class Supervision_Train(pl.LightningModule):
             Recall = np.nanmean(self.metrics_val.Recall()[:-1])
             JAC = np.nanmean(self.metrics_val.JAC()[:-1])
         elif 'cell' in self.config.log_name:
+            mIoU = np.nanmean(self.metrics_val.Intersection_over_Union()[:-1])
+            F1 = np.nanmean(self.metrics_val.F1()[:-1])
+            Recall = np.nanmean(self.metrics_val.Recall()[:-1])
+            JAC = np.nanmean(self.metrics_val.JAC()[:-1])
+        elif 'chase_db1' in self.config.log_name:
             mIoU = np.nanmean(self.metrics_val.Intersection_over_Union()[:-1])
             F1 = np.nanmean(self.metrics_val.F1()[:-1])
             Recall = np.nanmean(self.metrics_val.Recall()[:-1])
