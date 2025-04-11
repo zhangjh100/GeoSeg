@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = chase_db1Dataset(data_root='data/chase_db1/train', mode='train',
+train_dataset = chase_db1Dataset(data_root='data/chase_db1/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = chase_db1Dataset(transform=val_aug)
-test_dataset = chase_db1Dataset(data_root='data/chase_db1/train',
+test_dataset = chase_db1Dataset(data_root='data/chase_db1/test',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,

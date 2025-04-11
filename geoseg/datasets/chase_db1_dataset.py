@@ -54,7 +54,7 @@ def val_aug(img, mask):
 
 
 class chase_db1Dataset(Dataset):
-    def __init__(self, data_root='data/chase_db1/train', mode='train', img_dir='train_images', mask_dir='train_masks',
+    def __init__(self, data_root='data/chase_db1/test', mode='test', img_dir='test_images', mask_dir='test_masks',
                  img_suffix='.png', mask_suffix='.png', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root

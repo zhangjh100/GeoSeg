@@ -6,8 +6,7 @@ from train_supervision import *
 import argparse
 from pathlib import Path
 import cv2
-import numpy as np
-import torch
+import numpy as npimport torch
 
 from torch import nn
 from torch.utils.data import DataLoader
