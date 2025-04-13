@@ -38,15 +38,16 @@ net = ft_unetformer(num_classes=num_classes, decoder_channels=256)
 loss = JointLoss(SoftCrossEntropyLoss(smooth_factor=0.05, ignore_index=ignore_index),
                  DiceLoss(smooth=0.05, ignore_index=ignore_index), 1.0, 1.0)
 
-use_aux_loss = False
+# use_aux_loss = False
+use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = cellDataset(data_root='data/cell/test', mode='test',
+train_dataset = cellDataset(data_root='data/cell/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = cellDataset(transform=val_aug)
-test_dataset = cellDataset(data_root='data/cell/test',
+test_dataset = cellDataset(data_root='data/cell/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,

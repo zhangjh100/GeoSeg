@@ -54,8 +54,9 @@ def val_aug(img, mask):
 
 
 class cellDataset(Dataset):
-    def __init__(self, data_root='data/cell/test', mode='test', img_dir='test_images', mask_dir='test_masks_convert',
-                 img_suffix='.tif', mask_suffix='.tif', transform=val_aug, mosaic_ratio=0.0,
+    #   original mosaic_ratio = 0.0, 
+    def __init__(self, data_root='data/cell/train', mode='train', img_dir='train_images', mask_dir='train_masks_convert',
+                 img_suffix='.tif', mask_suffix='.tif', transform=train_aug, mosaic_ratio=0.25,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root
         self.img_dir = img_dir
