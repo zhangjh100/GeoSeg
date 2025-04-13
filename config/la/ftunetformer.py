@@ -6,7 +6,7 @@ from tools.utils import Lookahead
 from tools.utils import process_model_params
 
 # training hparam
-max_epoch = 50
+max_epoch = 150
 ignore_index = len(CLASSES)
 train_batch_size = 32
 val_batch_size = 16
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = laDataset(data_root='data/la_2018/test', mode='test',
+train_dataset = laDataset(data_root='data/la_2018/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = laDataset(transform=val_aug)
-test_dataset = laDataset(data_root='data/la_2018/test',
+test_dataset = laDataset(data_root='data/la_2018/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
