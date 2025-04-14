@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = cellDataset(data_root='data/cell/train', mode='train',
+train_dataset = cellDataset(data_root='data/cell/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = cellDataset(transform=val_aug)
-test_dataset = cellDataset(data_root='data/cell/train',
+test_dataset = cellDataset(data_root='data/cell/test',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
