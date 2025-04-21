@@ -6,7 +6,7 @@ from tools.utils import Lookahead
 from tools.utils import process_model_params
 
 # training hparam
-max_epoch = 200
+max_epoch = 300
 ignore_index = len(CLASSES)
 train_batch_size = 32
 val_batch_size = 16
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/Synapse/train', mode='train',
+train_dataset = synapseDataset(data_root='data/Synapse/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
-val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/Synapse/train',
+val_dataset = synapseDataset(transform=val_aug)
+test_dataset = synapseDataset(data_root='data/Synapse/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
