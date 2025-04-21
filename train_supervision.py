@@ -193,8 +193,7 @@ class Supervision_Train(pl.LightningModule):
         eval_value = {'mIoU': mIoU,
                       'F1': F1,
                       'OA': OA,
-                      'Recall': Recall,
-                      'JAC': JAC}
+                      'Recall': Recall}
         print('val:', eval_value)
         iou_value = {}
         for class_name, iou in zip(self.config.classes, iou_per_class):
