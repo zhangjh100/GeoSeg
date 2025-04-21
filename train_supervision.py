@@ -193,8 +193,7 @@ class Supervision_Train(pl.LightningModule):
         eval_value = {'mIoU': mIoU,
                       'F1': F1,
                       'OA': OA,
-                      'Recall': Recall,
-                      'JAC': JAC}
+                      'Recall': Recall}
         print('val:', eval_value)
         iou_value = {}
         for class_name, iou in zip(self.config.classes, iou_per_class):
@@ -202,7 +201,7 @@ class Supervision_Train(pl.LightningModule):
         print(iou_value)
 
         self.metrics_val.reset()
-        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA, 'val_Recall': Recall, 'val_JAC': JAC }
+        log_dict = {'val_mIoU': mIoU, 'val_F1': F1, 'val_OA': OA, 'val_Recall': Recall}
         self.log_dict(log_dict, prog_bar=True)
 
     def configure_optimizers(self):
