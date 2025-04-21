@@ -1194,19 +1194,19 @@ class FTUNetFormer(nn.Module):
 
 
 def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_channels=256,
-                  weight_path='pretrain_weights/swinv2_small_patch4_window16_256.pth'):
+                  weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
     model = FTUNetFormer(num_classes=num_classes,
                          freeze_stages=freeze_stages,
                          ### swin_small
-                         embed_dim=96,
-                         depths=(2, 2, 18, 2),
-                         num_heads=(3, 6, 12, 24),
+                         # embed_dim=96,
+                         # depths=(2, 2, 18, 2),
+                         # num_heads=(3, 6, 12, 24),
 
 
                          ## swin-base
-                         # embed_dim=128,
-                         # depths=(2, 2, 18, 2),
-                         # num_heads=(4, 8, 16, 32),
+                         embed_dim=128,
+                         depths=(2, 2, 18, 2),
+                         num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
 
     # if pretrained and weight_path is not None:

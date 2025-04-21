@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-256-swin-small"
+weights_name = "ftunetformer-256-swin-base"
 weights_path = "model_weights/Synapse/{}".format(weights_name)
-test_weights_name = "ftunetformer-256-swin-small"
+test_weights_name = "ftunetformer-256-swin-base"
 log_name = 'Synapse/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = synapseDataset(data_root='data/Synapse/test', mode='test',
+train_dataset = synapseDataset(data_root='data/Synapse/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = synapseDataset(transform=val_aug)
-test_dataset = synapseDataset(data_root='data/Synapse/test',
+test_dataset = synapseDataset(data_root='data/Synapse/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
