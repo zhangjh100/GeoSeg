@@ -908,10 +908,34 @@ class Block(nn.Module):
         return x
 
 
+##  my WF exchanged module
+# class WF(nn.Module):
+#     def __init__(self, in_channels=128, decode_channels=128, eps=1e-8):
+#         super(WF, self).__init__()
+#         self.pre_conv = ConvBN(in_channels, decode_channels, kernel_size=3)
+#
+#         self.weights = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
+#         self.eps = eps
+#         self.post_conv = ConvBNReLU(decode_channels, decode_channels, kernel_size=3)
+#
+#     def forward(self, x, res):
+#         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+#         weights = nn.ReLU()(self.weights)
+#         fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
+#         x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+#         x = self.post_conv(x)
+#         return x
+
+
+##  my new module updated in 04.24,2025
 class WF(nn.Module):
     def __init__(self, in_channels=128, decode_channels=128, eps=1e-8):
         super(WF, self).__init__()
+        # 假设 ConvBN 和 ConvBNReLU 是已定义好的类
         self.pre_conv = ConvBN(in_channels, decode_channels, kernel_size=3)
+
+        # 添加 SCSE 模块用于处理残差连接
+        self.scse = SCSEModule(decode_channels)
 
         self.weights = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
         self.eps = eps
@@ -919,9 +943,10 @@ class WF(nn.Module):
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        res = self.scse(self.pre_conv(res))
         weights = nn.ReLU()(self.weights)
         fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
-        x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        x = fuse_weights[0] * res + fuse_weights[1] * x
         x = self.post_conv(x)
         return x
 
@@ -1019,55 +1044,6 @@ class AuxHead(nn.Module):
         return feat
 
 # original Decorder
-# class Decoder(nn.Module):
-#     def __init__(self,
-#                  encoder_channels=(64, 128, 256, 512),
-#                  decode_channels=64,
-#                  dropout=0.1,
-#                  window_size=8,
-#                  num_classes=6):
-#         super(Decoder, self).__init__()
-#
-#         self.pre_conv = ConvBN(encoder_channels[-1], decode_channels, kernel_size=1)
-#         self.b4 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
-#
-#         self.b3 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
-#         self.p3 = WF(encoder_channels[-2], decode_channels)
-#
-#         self.b2 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
-#         self.p2 = WF(encoder_channels[-3], decode_channels)
-#
-#         self.p1 = FeatureRefinementHead(encoder_channels[-4], decode_channels)
-#
-#         self.segmentation_head = nn.Sequential(ConvBNReLU(decode_channels, decode_channels),
-#                                                nn.Dropout2d(p=dropout, inplace=True),
-#                                                Conv(decode_channels, num_classes, kernel_size=1))
-#         self.init_weight()
-#
-#     def forward(self, res1, res2, res3, res4, h, w):
-#
-#         x = self.b4(self.pre_conv(res4))
-#         x = self.p3(x, res3)
-#         x = self.b3(x)
-#
-#         x = self.p2(x, res2)
-#         x = self.b2(x)
-#
-#         x = self.p1(x, res1)
-#
-#         x = self.segmentation_head(x)
-#         x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=False)
-#
-#         return x
-#
-#     def init_weight(self):
-#         for m in self.children():
-#             if isinstance(m, nn.Conv2d):
-#                 nn.init.kaiming_normal_(m.weight, a=1)
-#                 if m.bias is not None:
-#                     nn.init.constant_(m.bias, 0)
-
-# Decoder with skip-connection
 class Decoder(nn.Module):
     def __init__(self,
                  encoder_channels=(64, 128, 256, 512),
@@ -1086,52 +1062,101 @@ class Decoder(nn.Module):
         self.b2 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
         self.p2 = WF(encoder_channels[-3], decode_channels)
 
-        self.up4 = nn.UpsamplingBilinear2d(scale_factor=4)
-        self.up3 = nn.UpsamplingBilinear2d(scale_factor=2)
-
-        # self.p1 = FeatureRefinementHead(encoder_channels[-4], decode_channels)
-        self.p1 = DetailEnhanceBlock(encoder_channels[-4], decode_channels)
+        self.p1 = FeatureRefinementHead(encoder_channels[-4], decode_channels)
 
         self.segmentation_head = nn.Sequential(ConvBNReLU(decode_channels, decode_channels),
                                                nn.Dropout2d(p=dropout, inplace=True),
                                                Conv(decode_channels, num_classes, kernel_size=1))
-
-        # 添加 SCSE 模块
-        self.scse1 = SCSEModule(decode_channels)
-        self.scse2 = SCSEModule(decode_channels)
-        self.scse3 = SCSEModule(decode_channels)
-        self.scse4 = SCSEModule(decode_channels)
-
         self.init_weight()
 
     def forward(self, res1, res2, res3, res4, h, w):
 
-        x = self.b4(self.pre_conv(res4))  # 256*8*8
-        x = self.scse1(x)  # 添加 SCSE 模块
+        x = self.b4(self.pre_conv(res4))
+        x = self.p3(x, res3)
+        x = self.b3(x)
 
-        x = self.p3(x, res3)  # 256*16*16
-        x = self.b3(x)  # 256*16*16
-        x = self.scse2(x)  # 添加 SCSE 模块
+        x = self.p2(x, res2)
+        x = self.b2(x)
 
-        x = self.p2(x, res2)  # 256*32*32
-        x = self.b2(x)  # 256*32*32
-        x = self.scse3(x)  # 添加 SCSE 模块
+        x = self.p1(x, res1)
 
-        x = self.p1(x, res1)  # 256*64*64
-        x = self.scse4(x)  # 添加 SCSE 模块
-
-        x = self.segmentation_head(x)  # 6*64*64
+        x = self.segmentation_head(x)
         x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=False)
 
         return x
 
     def init_weight(self):
-        for m in self.modules():
+        for m in self.children():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
+                nn.init.kaiming_normal_(m.weight, a=1)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+
+# Decoder with skip-connection
+# class Decoder(nn.Module):
+#     def __init__(self,
+#                  encoder_channels=(64, 128, 256, 512),
+#                  decode_channels=64,
+#                  dropout=0.1,
+#                  window_size=8,
+#                  num_classes=6):
+#         super(Decoder, self).__init__()
+#
+#         self.pre_conv = ConvBN(encoder_channels[-1], decode_channels, kernel_size=1)
+#         self.b4 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
+#
+#         self.b3 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
+#         self.p3 = WF(encoder_channels[-2], decode_channels)
+#
+#         self.b2 = Block(dim=decode_channels, num_heads=16, window_size=window_size)
+#         self.p2 = WF(encoder_channels[-3], decode_channels)
+#
+#         self.up4 = nn.UpsamplingBilinear2d(scale_factor=4)
+#         self.up3 = nn.UpsamplingBilinear2d(scale_factor=2)
+#
+#         # self.p1 = FeatureRefinementHead(encoder_channels[-4], decode_channels)
+#         self.p1 = DetailEnhanceBlock(encoder_channels[-4], decode_channels)
+#
+#         self.segmentation_head = nn.Sequential(ConvBNReLU(decode_channels, decode_channels),
+#                                                nn.Dropout2d(p=dropout, inplace=True),
+#                                                Conv(decode_channels, num_classes, kernel_size=1))
+#
+#         # 添加 SCSE 模块
+#         self.scse1 = SCSEModule(decode_channels)
+#         self.scse2 = SCSEModule(decode_channels)
+#         self.scse3 = SCSEModule(decode_channels)
+#         self.scse4 = SCSEModule(decode_channels)
+#
+#         self.init_weight()
+#
+#     def forward(self, res1, res2, res3, res4, h, w):
+#
+#         x = self.b4(self.pre_conv(res4))  # 256*8*8
+#         x = self.scse1(x)  # 添加 SCSE 模块
+#
+#         x = self.p3(x, res3)  # 256*16*16
+#         x = self.b3(x)  # 256*16*16
+#         x = self.scse2(x)  # 添加 SCSE 模块
+#
+#         x = self.p2(x, res2)  # 256*32*32
+#         x = self.b2(x)  # 256*32*32
+#         x = self.scse3(x)  # 添加 SCSE 模块
+#
+#         x = self.p1(x, res1)  # 256*64*64
+#         x = self.scse4(x)  # 添加 SCSE 模块
+#
+#         x = self.segmentation_head(x)  # 6*64*64
+#         x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=False)
+#
+#         return x
+#
+#     def init_weight(self):
+#         for m in self.modules():
+#             if isinstance(m, nn.Conv2d):
+#                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+#             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
+#                 nn.init.constant_(m.weight, 1)
+#                 nn.init.constant_(m.bias, 0)
 
 #   new added module
 class Classifier_Module(nn.Module):

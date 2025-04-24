@@ -6,10 +6,10 @@ from tools.utils import Lookahead
 from tools.utils import process_model_params
 
 # training hparam
-max_epoch = 200
+max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 16
-val_batch_size = 16
+train_batch_size = 32
+val_batch_size = 32
 lr = 6e-4
 weight_decay = 2.5e-4
 backbone_lr = 6e-5
@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-256-swin-small"
+weights_name = "ftunetformer-256-swin-base"
 weights_path = "model_weights/acdc/{}".format(weights_name)
-test_weights_name = "ftunetformer-256-swin-small"
+test_weights_name = "ftunetformer-256-swin-base"
 log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
+train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/test',
+test_dataset = acdcDataset(data_root='data/acdc/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
