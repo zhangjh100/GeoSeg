@@ -8,8 +8,8 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 8
-val_batch_size = 4
+train_batch_size = 32
+val_batch_size = 16
 lr = 6e-4
 weight_decay = 2.5e-4
 backbone_lr = 6e-5
@@ -58,7 +58,7 @@ train_loader = DataLoader(dataset=train_dataset,
 
 val_loader = DataLoader(dataset=val_dataset,
                         batch_size=val_batch_size,
-                        num_workers=2,
+                        num_workers=4,
                         shuffle=False,
                         pin_memory=True,
                         drop_last=False)
