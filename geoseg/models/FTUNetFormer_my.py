@@ -852,34 +852,6 @@ class LocalCNNblock(nn.Module):
         B, C, H, W = x.shape
 
         local = self.local2(x) + self.local1(x)
-
-        # x = self.pad(x, self.ws)
-        # B, C, Hp, Wp = x.shape
-        # qkv = self.qkv(x)
-        #
-        # q, k, v = rearrange(qkv, 'b (qkv h d) (hh ws1) (ww ws2) -> qkv (b hh ww) h (ws1 ws2) d', h=self.num_heads,
-        #                     d=C//self.num_heads, hh=Hp//self.ws, ww=Wp//self.ws, qkv=3, ws1=self.ws, ws2=self.ws)
-        #
-        # dots = (q @ k.transpose(-2, -1)) * self.scale
-
-        # if self.relative_pos_embedding:
-        #     relative_position_bias = self.relative_position_bias_table[self.relative_position_index.view(-1)].view(
-        #         self.ws * self.ws, self.ws * self.ws, -1)  # Wh*Ww,Wh*Ww,nH
-        #     relative_position_bias = relative_position_bias.permute(2, 0, 1).contiguous()  # nH, Wh*Ww, Wh*Ww
-        #     dots += relative_position_bias.unsqueeze(0)
-        #
-        # attn = dots.softmax(dim=-1)
-        # attn = attn @ v
-
-        # attn = rearrange(attn, '(b hh ww) h (ws1 ws2) d -> b (h d) (hh ws1) (ww ws2)', h=self.num_heads,
-        #                  d=C//self.num_heads, hh=Hp//self.ws, ww=Wp//self.ws, ws1=self.ws, ws2=self.ws)
-        #
-        # attn = attn[:, :, :H, :W]
-
-        # out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-        #       self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
-        #
-        # out = out + local
         out = local
         out = self.pad_out(out)
         out = self.proj(out)
@@ -893,7 +865,8 @@ class Block(nn.Module):
                  drop_path=0., act_layer=nn.ReLU6, norm_layer=nn.BatchNorm2d, window_size=8):
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = GlobalLocalAttention(dim, num_heads=num_heads, qkv_bias=qkv_bias, window_size=window_size)
+        # self.attn = GlobalLocalAttention(dim, num_heads=num_heads, qkv_bias=qkv_bias, window_size=window_size)
+        self.attn = LocalCNNblock(dim)
 
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         mlp_hidden_dim = int(dim * mlp_ratio)
