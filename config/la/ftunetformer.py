@@ -8,8 +8,8 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 16
-val_batch_size = 8
+train_batch_size = 32
+val_batch_size = 16
 lr = 6e-4
 weight_decay = 2.5e-4
 backbone_lr = 6e-5
@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-512-swin-base"
+weights_name = "ftunetformer-512-swin-small"
 weights_path = "model_weights/la_2018/{}".format(weights_name)
-test_weights_name = "ftunetformer-512-swin-base"
+test_weights_name = "ftunetformer-512-swin-small"
 log_name = 'la-2018/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'

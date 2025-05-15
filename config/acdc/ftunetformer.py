@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-256-swin-base"
+weights_name = "ftunetformer-256-swin-small"
 weights_path = "model_weights/acdc/{}".format(weights_name)
-test_weights_name = "ftunetformer-256-swin-base"
+test_weights_name = "ftunetformer-256-swin-small"
 log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'

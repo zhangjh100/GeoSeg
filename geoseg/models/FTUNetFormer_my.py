@@ -723,12 +723,12 @@ class GlobalLocalAttention(nn.Module):
         self.local2 = ConvBN(dim, dim, kernel_size=1)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
         #   修改前
-        # self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
-        # self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size//2 - 1))
+        self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
+        self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size//2 - 1))
 
         #   修改后（去除无效信息）
-        self.attn_x = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
-        self.attn_y = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        # self.attn_x = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        # self.attn_y = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
 
         self.relative_pos_embedding = relative_pos_embedding
 
@@ -1204,19 +1204,19 @@ class FTUNetFormer(nn.Module):
 
 
 def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_channels=256,
-                  weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
+                  weight_path='pretrain_weights/swinv2_small_patch4_window16_256.pth'):
     model = FTUNetFormer(num_classes=num_classes,
                          freeze_stages=freeze_stages,
                          ### swin_small
-                         # embed_dim=96,
-                         # depths=(2, 2, 18, 2),
-                         # num_heads=(3, 6, 12, 24),
+                         embed_dim=96,
+                         depths=(2, 2, 18, 2),
+                         num_heads=(3, 6, 12, 24),
 
 
                          ## swin-base
-                         embed_dim=128,
-                         depths=(2, 2, 18, 2),
-                         num_heads=(4, 8, 16, 32),
+                         # embed_dim=128,
+                         # depths=(2, 2, 18, 2),
+                         # num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
 
     # if pretrained and weight_path is not None:
