@@ -16,7 +16,7 @@ CLASSES = ('background', 'LA_Endo')
 PALETTE = [[0, 0, 0], [255, 255, 255]]
 
 ORIGIN_IMG_SIZE = (512, 512)
-INPUT_IMG_SIZE = (512, 512)
+INPUT_IMG_SIZE = (256, 256)
 TEST_IMG_SIZE = (512, 512)
 
 
@@ -30,7 +30,7 @@ def get_training_transform():
 
 def train_aug(img, mask):
     crop_aug = Compose([RandomScale(scale_list=[0.5, 0.75, 1.0, 1.25, 1.5], mode='value'),
-                        SmartCropV1(crop_size=512, max_ratio=0.75,
+                        SmartCropV1(crop_size=256, max_ratio=0.75,
                                     ignore_index=len(CLASSES), nopad=False)])
     img, mask = crop_aug(img, mask)
     img, mask = np.array(img), np.array(mask)
