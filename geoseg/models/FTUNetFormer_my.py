@@ -819,7 +819,9 @@ class LocalCNNblock(nn.Module):
         # self.ws = window_size
 
         # self.qkv = Conv(dim, 3*dim, kernel_size=1, bias=qkv_bias)
-        self.local1 = ConvBN(dim, dim, kernel_size=3)
+        # self.local1 = ConvBN(dim, dim, kernel_size=3)
+        self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
+                                          groups=1)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
@@ -877,8 +879,8 @@ class Block(nn.Module):
                  drop_path=0., act_layer=nn.ReLU6, norm_layer=nn.BatchNorm2d, window_size=8):
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = GlobalLocalAttention(dim, num_heads=num_heads, qkv_bias=qkv_bias, window_size=window_size)
-        # self.attn = LocalCNNblock(dim)
+        # self.attn = GlobalLocalAttention(dim, num_heads=num_heads, qkv_bias=qkv_bias, window_size=window_size)
+        self.attn = LocalCNNblock(dim)
 
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         mlp_hidden_dim = int(dim * mlp_ratio)
@@ -1204,19 +1206,19 @@ class FTUNetFormer(nn.Module):
 
 
 def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_channels=256,
-                  weight_path='pretrain_weights/swinv2_small_patch4_window16_256.pth'):
+                  weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
     model = FTUNetFormer(num_classes=num_classes,
                          freeze_stages=freeze_stages,
                          ### swin_small
-                         embed_dim=96,
-                         depths=(2, 2, 18, 2),
-                         num_heads=(3, 6, 12, 24),
+                         # embed_dim=96,
+                         # depths=(2, 2, 18, 2),
+                         # num_heads=(3, 6, 12, 24),
 
 
                          ## swin-base
-                         # embed_dim=128,
-                         # depths=(2, 2, 18, 2),
-                         # num_heads=(4, 8, 16, 32),
+                         embed_dim=128,
+                         depths=(2, 2, 18, 2),
+                         num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
 
     # if pretrained and weight_path is not None:
