@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-512-swin-base"
+weights_name = "ftunetformer-512-swin-base-ablation"
 weights_path = "model_weights/la_2018/{}".format(weights_name)
-test_weights_name = "ftunetformer-512-swin-base"
+test_weights_name = "ftunetformer-512-swin-base-ablation"
 log_name = 'la-2018/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = laDataset(data_root='data/la_2018/test', mode='test',
+train_dataset = laDataset(data_root='data/la_2018/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = laDataset(transform=val_aug)
-test_dataset = laDataset(data_root='data/la_2018/test',
+test_dataset = laDataset(data_root='data/la_2018/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
