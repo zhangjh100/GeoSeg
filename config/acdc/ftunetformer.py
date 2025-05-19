@@ -42,7 +42,7 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/train', mode='test',
+train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
