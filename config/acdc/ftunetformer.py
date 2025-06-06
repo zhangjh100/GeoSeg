@@ -8,8 +8,8 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 8
-val_batch_size = 4
+train_batch_size = 16
+val_batch_size = 8
 lr = 6e-4
 weight_decay = 2.5e-4
 backbone_lr = 6e-5
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
+train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/train',
+test_dataset = acdcDataset(data_root='data/acdc/test',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,

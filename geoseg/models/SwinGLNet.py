@@ -809,7 +809,6 @@ class LocalCNNblock(nn.Module):
                  # num_heads=16,
                  # qkv_bias=False,
                  window_size=8,
-                 # decode_channels=256,
                  # relative_pos_embedding=True
                  relative_pos_embedding=False
                  ):
@@ -823,7 +822,7 @@ class LocalCNNblock(nn.Module):
         # self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
-        # self.attn = SCSEModule(decode_channels)
+        self.attn = SCSEModule(dim)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
         # self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
@@ -867,8 +866,7 @@ class LocalCNNblock(nn.Module):
         B, C, H, W = x.shape
 
         local = self.local2(x) + self.local1(x)
-        # out = self.attn(x)
-        out = local
+        out = local + self.attn(x)
         out = self.pad_out(out)
         out = self.proj(out)
         # print(out.size())
@@ -988,16 +986,16 @@ class DetailEnhanceBlock(nn.Module):
 
         self.pa = nn.Sequential(nn.Conv2d(decode_channels, decode_channels, kernel_size=3, padding=1, groups=decode_channels),
                                 nn.Sigmoid())
-        # self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
-        #                         Conv(decode_channels, decode_channels//16, kernel_size=1),
-        #                         nn.ReLU6(),
-        #                         Conv(decode_channels//16, decode_channels, kernel_size=1),
-        #                         nn.Sigmoid())
-        self.ca = nn.Sequential(nn.AdaptiveMaxPool2d(1),    # 将全局平均池化换成全局最大池化，捕获纹理细节
-                                Conv(decode_channels, decode_channels // 16, kernel_size=1),
+        self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+                                Conv(decode_channels, decode_channels//16, kernel_size=1),
                                 nn.ReLU6(),
-                                Conv(decode_channels // 16, decode_channels, kernel_size=1),
+                                Conv(decode_channels//16, decode_channels, kernel_size=1),
                                 nn.Sigmoid())
+        # self.ca = nn.Sequential(nn.AdaptiveMaxPool2d(1),    # 将全局平均池化换成全局最大池化，捕获纹理细节
+        #                         Conv(decode_channels, decode_channels // 16, kernel_size=1),
+        #                         nn.ReLU6(),
+        #                         Conv(decode_channels // 16, decode_channels, kernel_size=1),
+        #                         nn.Sigmoid())
 
         self.shortcut = ConvBN(decode_channels, decode_channels, kernel_size=1)
         self.proj = SeparableConvBN(decode_channels, decode_channels, kernel_size=3)
@@ -1173,7 +1171,7 @@ class Classifier_Module(nn.Module):
 class local_SE(nn.Module):
     def __init__(self, kernel_size=7):
         super(local_SE, self).__init__()
-        # assert kernel_size in (3,7), "kernel size must be 3 or 7"
+        assert kernel_size in (3,7), "kernel size must be 3 or 7"
         padding = 3 if kernel_size == 7 else 1
 
         self.conv = nn.Conv2d(2,1,kernel_size, padding=padding, bias=False)
@@ -1182,11 +1180,12 @@ class local_SE(nn.Module):
     def forward(self, U):
         avgout = torch.mean(U, dim=1, keepdim=True)
         maxout, _ = torch.max(U, dim=1, keepdim=True)
-        # x = torch.cat([avgout, maxout], dim=1)
-        x = 0.5 * avgout + 0.5 * maxout
+        x = torch.cat([avgout, maxout], dim=1)
+        # x = 0.5 * avgout + 0.5 * maxout
         x = self.conv(x)
+        x = self.sigmoid(x)
         # return U * self.sigmoid(x)
-        return self.sigmoid(x)
+        return x.expand_as(U)
 
 class global_SE(nn.Module):
     def __init__(self, in_channels):
@@ -1213,9 +1212,9 @@ class SCSEModule(nn.Module):
         self.sSE = local_SE(in_channels)
 
     def forward(self, U):
-        # U_sse = self.sSE(U)
+        U_sse = self.sSE(U)
         U_cse = self.cSE(U)
-        return U_cse
+        return U_cse+U_sse
 
 class FTUNetFormer(nn.Module):
 
