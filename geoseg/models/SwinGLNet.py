@@ -822,7 +822,7 @@ class LocalCNNblock(nn.Module):
         # self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
-        self.attn = SCSEModule(dim)
+        self.attn = global_SE(dim)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
         # self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
@@ -1202,8 +1202,8 @@ class global_SE(nn.Module):
         z = self.Conv_Squeeze(z) # shape: [bs, c/2]
         z = self.Conv_Excitation(z) # shape: [bs, c]
         z = self.norm(z)
-        # return U * z.expand_as(U)
-        return z.expand_as(U)
+        return U*z.expand_as(U)
+        # return z.expand_as(U)
 
 class SCSEModule(nn.Module):
     def __init__(self, in_channels):
