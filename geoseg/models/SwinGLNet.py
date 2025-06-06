@@ -809,7 +809,7 @@ class LocalCNNblock(nn.Module):
                  # num_heads=16,
                  # qkv_bias=False,
                  window_size=8,
-                 decode_channels=128,
+                 decode_channels=256,
                  # relative_pos_embedding=True
                  relative_pos_embedding=False
                  ):
@@ -1213,9 +1213,9 @@ class SCSEModule(nn.Module):
         # self.sSE = local_SE(in_channels)
 
     def forward(self, U):
-        # U_sse = self.sSE(U)
+        U_sse = self.sSE(U)
         U_cse = self.cSE(U)
-        return U_cse
+        return U_cse+U_sse
 
 class FTUNetFormer(nn.Module):
 
