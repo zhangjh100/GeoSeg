@@ -1182,7 +1182,8 @@ class local_SE(nn.Module):
     def forward(self, U):
         avgout = torch.mean(U, dim=1, keepdim=True)
         maxout, _ = torch.max(U, dim=1, keepdim=True)
-        x = torch.cat([avgout, maxout], dim=1)
+        # x = torch.cat([avgout, maxout], dim=1)
+        x = 0.5 * avgout + 0.5 * maxout
         x = self.conv(x)
         # return U * self.sigmoid(x)
         return self.sigmoid(x)
