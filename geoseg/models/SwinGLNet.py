@@ -1210,7 +1210,7 @@ class SCSEModule(nn.Module):
     def __init__(self, in_channels):
         super().__init__()
         self.cSE = global_SE(in_channels)
-        # self.sSE = local_SE(in_channels)
+        self.sSE = local_SE(in_channels)
 
     def forward(self, U):
         U_sse = self.sSE(U)
