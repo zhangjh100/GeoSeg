@@ -867,8 +867,8 @@ class LocalCNNblock(nn.Module):
         B, C, H, W = x.shape
 
         local = self.local2(x) + self.local1(x)
-        out = self.attn(x)
-        out = out + local
+        # out = self.attn(x)
+        out = local
         out = self.pad_out(out)
         out = self.proj(out)
         # print(out.size())
