@@ -809,7 +809,7 @@ class LocalCNNblock(nn.Module):
                  # num_heads=16,
                  # qkv_bias=False,
                  window_size=8,
-                 decode_channels=256,
+                 # decode_channels=256,
                  # relative_pos_embedding=True
                  relative_pos_embedding=False
                  ):
@@ -823,7 +823,7 @@ class LocalCNNblock(nn.Module):
         # self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
-        self.attn = SCSEModule(decode_channels)
+        # self.attn = SCSEModule(decode_channels)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
         # self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
@@ -1213,9 +1213,9 @@ class SCSEModule(nn.Module):
         self.sSE = local_SE(in_channels)
 
     def forward(self, U):
-        U_sse = self.sSE(U)
+        # U_sse = self.sSE(U)
         U_cse = self.cSE(U)
-        return U_cse+U_sse
+        return U_cse
 
 class FTUNetFormer(nn.Module):
 
