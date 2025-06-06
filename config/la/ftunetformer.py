@@ -1,15 +1,15 @@
 from torch.utils.data import DataLoader
 from geoseg.losses import *
 from geoseg.datasets.la_dataset import *
-from geoseg.models.FTUNetFormer_my import ft_unetformer
+from geoseg.models.SwinGLNet import ft_unetformer
 from tools.utils import Lookahead
 from tools.utils import process_model_params
 
 # training hparam
 max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 32
-val_batch_size = 16
+train_batch_size = 16
+val_batch_size = 8
 lr = 6e-4
 weight_decay = 2.5e-4
 backbone_lr = 6e-5
@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-512-swin-base-ablation"
+weights_name = "swinglnet-256-swin-base"
 weights_path = "model_weights/la_2018/{}".format(weights_name)
-test_weights_name = "ftunetformer-512-swin-base-ablation"
+test_weights_name = "swinglnet-256-swin-base"
 log_name = 'la-2018/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = laDataset(data_root='data/la_2018/test', mode='test',
+train_dataset = laDataset(data_root='data/la_2018/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = laDataset(transform=val_aug)
-test_dataset = laDataset(data_root='data/la_2018/test',
+test_dataset = laDataset(data_root='data/la_2018/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,

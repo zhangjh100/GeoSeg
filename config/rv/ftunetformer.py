@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 from geoseg.losses import *
 from geoseg.datasets.rv_dataset import *
-from geoseg.models.FTUNetFormer_my import ft_unetformer
+from geoseg.models.SwinGLNet import ft_unetformer
 from tools.utils import Lookahead
 from tools.utils import process_model_params
 
@@ -17,9 +17,9 @@ backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "ftunetformer-256-swin-base"
+weights_name = "swinglnet-256-swin-base"
 weights_path = "model_weights/rv/{}".format(weights_name)
-test_weights_name = "ftunetformer-256-swin-base"
+test_weights_name = "swinglnet-256-swin-base"
 log_name = 'rv/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -42,11 +42,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = rvDataset(data_root='data/rv/test-1', mode='test',
+train_dataset = rvDataset(data_root='data/rv/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = rvDataset(transform=val_aug)
-test_dataset = rvDataset(data_root='data/rv/test-1',
+test_dataset = rvDataset(data_root='data/rv/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
