@@ -37,7 +37,7 @@ net = ft_unetformer(num_classes=num_classes, decoder_channels=256)
 # define the loss
 # loss = JointLoss(SoftCrossEntropyLoss(smooth_factor=0.05, ignore_index=ignore_index),
 #                  DiceLoss(smooth=0.05, ignore_index=ignore_index), 1.0, 1.0)
-loss = JointLoss(DiceLoss(smooth=0.05, ignore_index=ignore_index), 1.0, 1.0)
+loss = EdgeLoss
 
 use_aux_loss = False
 
