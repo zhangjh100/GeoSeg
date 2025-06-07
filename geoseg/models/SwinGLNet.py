@@ -908,10 +908,10 @@ class WF(nn.Module):
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
-        # weights = nn.ReLU()(self.weights)
-        # fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
-        # x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
-        x = 0.4 * self.pre_conv(res) + 0.6 * x
+        weights = nn.ReLU()(self.weights)
+        fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
+        x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        # x = 0.4 * self.pre_conv(res) + 0.6 * x
         x = self.post_conv(x)
         return x
 
@@ -1009,10 +1009,10 @@ class DetailEnhanceBlock(nn.Module):
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
-        # weights = nn.ReLU()(self.weights)
-        # fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
-        # x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
-        x = 0.4 * self.pre_conv(res) + 0.6 * x
+        weights = nn.ReLU()(self.weights)
+        fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
+        x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        # x = 0.4 * self.pre_conv(res) + 0.6 * x
         x = self.post_conv(x)
         shortcut = self.shortcut(x)
         pa = self.pa(x) * x
