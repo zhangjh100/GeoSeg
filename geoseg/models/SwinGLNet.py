@@ -716,11 +716,11 @@ class GlobalLocalAttention(nn.Module):
 
         self.qkv = Conv(dim, 3*dim, kernel_size=1, bias=qkv_bias)
         #   原始的局部分支
-        self.local1 = ConvBN(dim, dim, kernel_size=3)
-        self.local2 = ConvBN(dim, dim, kernel_size=1)
-        #   修改后的局部信息采集分支
-        # self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1, groups=1)
+        # self.local1 = ConvBN(dim, dim, kernel_size=3)
         # self.local2 = ConvBN(dim, dim, kernel_size=1)
+        #   修改后的局部信息采集分支
+        self.local1 = global_SE(dim)
+        self.local2 = ConvBN(dim, dim, kernel_size=1)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
         #   修改前
         self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
@@ -889,7 +889,8 @@ class Block(nn.Module):
 
     def forward(self, x):
 
-        x = x + self.drop_path(self.attn(self.norm1(x)))
+        # x = x + self.drop_path(self.attn(self.norm1(x)))
+        x = x + self.drop_path(self.attn(x))
         x = x + self.drop_path(self.mlp(self.norm2(x)))
 
         return x
@@ -907,9 +908,10 @@ class WF(nn.Module):
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
-        weights = nn.ReLU()(self.weights)
-        fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
-        x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        # weights = nn.ReLU()(self.weights)
+        # fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
+        # x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        x = 0.4 * self.pre_conv(res) + 0.6 * x
         x = self.post_conv(x)
         return x
 
@@ -986,7 +988,7 @@ class DetailEnhanceBlock(nn.Module):
 
         self.pa = nn.Sequential(nn.Conv2d(decode_channels, decode_channels, kernel_size=3, padding=1, groups=decode_channels),
                                 nn.Sigmoid())
-        self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+        self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1) + nn.AdaptiveMaxPool2d(1),
                                 Conv(decode_channels, decode_channels//16, kernel_size=1),
                                 nn.ReLU6(),
                                 Conv(decode_channels//16, decode_channels, kernel_size=1),
@@ -1003,9 +1005,10 @@ class DetailEnhanceBlock(nn.Module):
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
-        weights = nn.ReLU()(self.weights)
-        fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
-        x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        # weights = nn.ReLU()(self.weights)
+        # fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
+        # x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        x = 0.4 * self.pre_conv(res) + 0.6 * x
         x = self.post_conv(x)
         shortcut = self.shortcut(x)
         pa = self.pa(x) * x
@@ -1198,7 +1201,8 @@ class global_SE(nn.Module):
 
     def forward(self, U):
         # z = self.avgpool(U)# shape: [bs, c, h, w] to [bs, c, 1, 1]
-        z = 0.5 * self.avgpool(U) + 0.5 * self.maxpool(U)
+        # z = 0.5 * self.avgpool(U) + 0.5 * self.maxpool(U)
+        z = self.avgpool(U) + self.maxpool(U)
         z = self.Conv_Squeeze(z) # shape: [bs, c/2]
         z = self.Conv_Excitation(z) # shape: [bs, c]
         z = self.norm(z)
