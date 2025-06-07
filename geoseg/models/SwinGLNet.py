@@ -977,6 +977,10 @@ class FeatureRefinementHead(nn.Module):
 
         return x
 
+class PoolingSum(nn.Module):
+    def forward(self, x):
+        return nn.AdaptiveAvgPool2d(1)(x) + nn.AdaptiveMaxPool2d(1)(x)
+
 class DetailEnhanceBlock(nn.Module):
     def __init__(self, in_channels=64, decode_channels=64):
         super().__init__()
@@ -988,15 +992,15 @@ class DetailEnhanceBlock(nn.Module):
 
         self.pa = nn.Sequential(nn.Conv2d(decode_channels, decode_channels, kernel_size=3, padding=1, groups=decode_channels),
                                 nn.Sigmoid())
-        self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1) + nn.AdaptiveMaxPool2d(1),
-                                Conv(decode_channels, decode_channels//16, kernel_size=1),
+        self.ca = nn.Sequential(PoolingSum(),
+                                Conv(decode_channels, decode_channels // 16, kernel_size=1),
                                 nn.ReLU6(),
-                                Conv(decode_channels//16, decode_channels, kernel_size=1),
+                                Conv(decode_channels // 16, decode_channels, kernel_size=1),
                                 nn.Sigmoid())
-        # self.ca = nn.Sequential(nn.AdaptiveMaxPool2d(1),    # 将全局平均池化换成全局最大池化，捕获纹理细节
-        #                         Conv(decode_channels, decode_channels // 16, kernel_size=1),
+        # self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+        #                         Conv(decode_channels, decode_channels//16, kernel_size=1),
         #                         nn.ReLU6(),
-        #                         Conv(decode_channels // 16, decode_channels, kernel_size=1),
+        #                         Conv(decode_channels//16, decode_channels, kernel_size=1),
         #                         nn.Sigmoid())
 
         self.shortcut = ConvBN(decode_channels, decode_channels, kernel_size=1)
