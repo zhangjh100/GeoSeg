@@ -40,11 +40,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
+train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/train',
+test_dataset = acdcDataset(data_root='data/acdc/test',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
