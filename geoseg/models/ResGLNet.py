@@ -125,8 +125,9 @@ class GlobalLocalAttention(nn.Module):
         self.attn_y1 = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
         self.attn_x2 = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size//2 - 1, 0))
         self.attn_y2 = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size//2 - 1))
-        self.attn_x = self.attn_x1 + self.attn_x2
-        self.attn_y = self.attn_y1 + self.attn_y2
+        # self.attn_x = self.attn_x1 + self.attn_x2
+        # self.attn_y = self.attn_y1 + self.attn_y2
+
         # self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0)) + nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
         # self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1)) + nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
 
@@ -192,8 +193,12 @@ class GlobalLocalAttention(nn.Module):
 
         attn = attn[:, :, :H, :W]
 
-        out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-              self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+        # out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+        #       self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+        out = self.attn_x1(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y1(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect')) + \
+              self.attn_x2(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y2(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
 
         out = out + local
         out = self.pad_out(out)
