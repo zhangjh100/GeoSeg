@@ -992,16 +992,16 @@ class DetailEnhanceBlock(nn.Module):
 
         self.pa = nn.Sequential(nn.Conv2d(decode_channels, decode_channels, kernel_size=3, padding=1, groups=decode_channels),
                                 nn.Sigmoid())
-        self.ca = nn.Sequential(PoolingSum(),
-                                Conv(decode_channels, decode_channels // 16, kernel_size=1),
-                                nn.ReLU6(),
-                                Conv(decode_channels // 16, decode_channels, kernel_size=1),
-                                nn.Sigmoid())
-        # self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
-        #                         Conv(decode_channels, decode_channels//16, kernel_size=1),
+        # self.ca = nn.Sequential(PoolingSum(),
+        #                         Conv(decode_channels, decode_channels // 16, kernel_size=1),
         #                         nn.ReLU6(),
-        #                         Conv(decode_channels//16, decode_channels, kernel_size=1),
+        #                         Conv(decode_channels // 16, decode_channels, kernel_size=1),
         #                         nn.Sigmoid())
+        self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+                                Conv(decode_channels, decode_channels//16, kernel_size=1),
+                                nn.ReLU6(),
+                                Conv(decode_channels//16, decode_channels, kernel_size=1),
+                                nn.Sigmoid())
 
         self.shortcut = ConvBN(decode_channels, decode_channels, kernel_size=1)
         self.proj = SeparableConvBN(decode_channels, decode_channels, kernel_size=3)
