@@ -403,8 +403,8 @@ class UNetFormer(nn.Module):
                  decode_channels=64,
                  dropout=0.1,
                  backbone_name='swsl_resnet18',
-                 # pretrained=True,
-                 pretrained=False,
+                 pretrained=True,
+                 # pretrained=False,
                  window_size=8,
                  num_classes=6
                  ):
@@ -412,8 +412,6 @@ class UNetFormer(nn.Module):
 
         self.backbone = timm.create_model(backbone_name, features_only=True, output_stride=32,
                                           out_indices=(1, 2, 3, 4), pretrained=pretrained)
-        # self.backbone = timm.create_model(backbone_name, features_only=True, output_stride=32,
-        #                                   out_indices=(1, 2, 3, 4), pretrained='pretrain_weights/rest_lite.pth')
         encoder_channels = self.backbone.feature_info.channels()
 
         self.decoder = Decoder(encoder_channels, decode_channels, dropout, window_size, num_classes)
@@ -427,6 +425,20 @@ class UNetFormer(nn.Module):
         else:
             x = self.decoder(res1, res2, res3, res4, h, w)
             return x
+
+    def load_backbone_weights(self, weight_path, strict=False):
+        """从指定路径加载骨干网络权重"""
+        try:
+            state_dict = torch.load(weight_path, map_location='cpu')
+            # 若权重是完整模型的权重，提取骨干网络部分
+            if 'backbone' in list(state_dict.keys())[0]:
+                state_dict = {k.replace('backbone.', ''): v for k, v in state_dict.items() if 'backbone' in k}
+            # 加载权重
+            self.backbone.load_state_dict(state_dict, strict=strict)
+            print(f"成功加载骨干网络权重: {weight_path}")
+        except Exception as e:
+            print(f"加载失败: {e}")
+            print("继续使用随机初始化权重或timm默认预训练权重。")
 
 class SelfAttentionConv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size,

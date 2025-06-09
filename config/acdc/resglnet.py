@@ -32,7 +32,19 @@ gpus = 'auto'  # default or gpu ids:[0] or gpu nums: 2, more setting can refer t
 resume_ckpt_path = None  # whether continue training with the checkpoint, default None
 
 #  define the network
-net = UNetFormer(num_classes=num_classes)
+# net = UNetFormer(num_classes=num_classes)
+
+model = UNetFormer(
+    backbone_name='resnet18',
+    pretrained=False,  # 不使用timm自动加载的预训练权重
+    num_classes=6
+)
+
+# 加载自定义预训练权重
+model.load_backbone_weights(
+    weight_path='./pretrain_weights/rest_lite.pth',  # 自定义路径
+    strict=False  # 允许部分加载（如缺少分类头权重）
+)
 
 # define the loss
 loss = UnetFormerLoss(ignore_index=ignore_index)
@@ -40,11 +52,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
+train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/test',
+test_dataset = acdcDataset(data_root='data/acdc/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
