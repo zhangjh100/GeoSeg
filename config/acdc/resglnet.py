@@ -36,7 +36,7 @@ resume_ckpt_path = None  # whether continue training with the checkpoint, defaul
 net = UNetFormer(
     backbone_name='swsl_resnet18',
     pretrained=False,
-    num_classes=6
+    num_classes=3
 )
 
 # 加载自定义预训练权重
