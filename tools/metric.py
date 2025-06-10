@@ -65,6 +65,7 @@ class Evaluator(object):
         mask = (gt_image >= 0) & (gt_image < self.num_class)
         label = self.num_class * gt_image[mask].astype('int') + pre_image[mask]
         count = np.bincount(label, minlength=self.num_class ** 2)
+        print(self.num_class)
         confusion_matrix = count.reshape(self.num_class, self.num_class)
         return confusion_matrix
 
