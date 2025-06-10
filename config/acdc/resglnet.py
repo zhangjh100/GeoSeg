@@ -26,8 +26,7 @@ monitor_mode = 'max'
 save_top_k = 1
 save_last = True
 check_val_every_n_epoch = 1
-pretrained_ckpt_path = None # the path for the pretrained model weight
-# pretrained_ckpt_path = 'pretrain_weights/rest_lite.pth'
+pretrained_ckpt_path = None
 gpus = 'auto'  # default or gpu ids:[0] or gpu nums: 2, more setting can refer to pytorch_lightning
 resume_ckpt_path = None  # whether continue training with the checkpoint, default None
 
@@ -35,15 +34,15 @@ resume_ckpt_path = None  # whether continue training with the checkpoint, defaul
 # net = UNetFormer(num_classes=num_classes)
 
 net = UNetFormer(
-    backbone_name='resnet18',
-    pretrained=False,  # 不使用timm自动加载的预训练权重
+    backbone_name='swsl_resnet18',
+    pretrained=False,
     num_classes=6
 )
 
 # 加载自定义预训练权重
 net.load_backbone_weights(
-    weight_path='./pretrain_weights/rest_lite.pth',  # 自定义路径
-    strict=False  # 允许部分加载（如缺少分类头权重）
+    weight_path='./pretrain_weights/resnet18.pth',
+    strict=False
 )
 
 # define the loss
