@@ -56,7 +56,7 @@ train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/test',
+test_dataset = acdcDataset(data_root='data/acdc/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
