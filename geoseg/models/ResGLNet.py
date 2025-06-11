@@ -402,10 +402,8 @@ class UNetFormer(nn.Module):
     def __init__(self,
                  decode_channels=64,
                  dropout=0.1,
-                 # backbone_name='swsl_resnet18',
-                 backbone_name='swsl_resnet101',
+                 backbone_name='swsl_resnet18',
                  pretrained=True,
-                 # pretrained=False,
                  window_size=8,
                  num_classes=6
                  ):

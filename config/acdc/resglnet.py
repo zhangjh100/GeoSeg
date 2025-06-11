@@ -10,6 +10,7 @@ max_epoch = 300
 ignore_index = len(CLASSES)
 train_batch_size = 16
 val_batch_size = 16
+
 lr = 6e-4
 weight_decay = 0.01
 backbone_lr = 6e-5
@@ -17,9 +18,9 @@ backbone_weight_decay = 0.01
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "resglnet-r101-256"
+weights_name = "resglnet-rlite-256"
 weights_path = "model_weights/acdc/{}".format(weights_name)
-test_weights_name = "resglnet-r101-256"
+test_weights_name = "resglnet-rlite-256"
 log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -34,15 +35,14 @@ resume_ckpt_path = None  # whether continue training with the checkpoint, defaul
 # net = UNetFormer(num_classes=num_classes)
 
 net = UNetFormer(
-    # backbone_name='swsl_resnet18',
-    backbone_name='swsl_resnet101',
+    backbone_name='swsl_resnet18',
     pretrained=False,
     num_classes=4
 )
 
 # 加载自定义预训练权重
 net.load_backbone_weights(
-    weight_path='./pretrain_weights/resnet101.pth',
+    weight_path='./pretrain_weights/rest_lite.pth',
     strict=False
 )
 
