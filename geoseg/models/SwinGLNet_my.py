@@ -981,7 +981,7 @@ class FTUNetFormer(nn.Module):
         return x
 
 
-def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_channels=256,
+def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_channels=256,
                   weight_path='pretrain_weights/stseg_base.pth'):
     model = FTUNetFormer(num_classes=num_classes,
                          freeze_stages=freeze_stages,
