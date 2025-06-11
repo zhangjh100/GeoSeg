@@ -17,9 +17,9 @@ backbone_weight_decay = 0.01
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "resglnet-r50-256"
+weights_name = "resglnet-r101-256"
 weights_path = "model_weights/acdc/{}".format(weights_name)
-test_weights_name = "resglnet-r50-256"
+test_weights_name = "resglnet-r101-256"
 log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
@@ -35,14 +35,14 @@ resume_ckpt_path = None  # whether continue training with the checkpoint, defaul
 
 net = UNetFormer(
     # backbone_name='swsl_resnet18',
-    backbone_name='swsl_resnet50',
+    backbone_name='swsl_resnet101',
     pretrained=False,
     num_classes=4
 )
 
 # 加载自定义预训练权重
 net.load_backbone_weights(
-    weight_path='./pretrain_weights/resnet50.pth',
+    weight_path='./pretrain_weights/resnet101.pth',
     strict=False
 )
 
@@ -52,7 +52,7 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
+train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)

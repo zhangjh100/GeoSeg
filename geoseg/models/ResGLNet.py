@@ -403,7 +403,7 @@ class UNetFormer(nn.Module):
                  decode_channels=64,
                  dropout=0.1,
                  # backbone_name='swsl_resnet18',
-                 backbone_name='swsl_resnet50',
+                 backbone_name='swsl_resnet101',
                  pretrained=True,
                  # pretrained=False,
                  window_size=8,
