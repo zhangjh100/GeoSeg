@@ -1,7 +1,7 @@
 from torch.utils.data import DataLoader
 from geoseg.losses import *
 from geoseg.datasets.acdc_dataset import *
-from geoseg.models.ResGLNet import UNetFormer
+from geoseg.models.SwinGLNet_my import ft_unetformer
 from tools.utils import Lookahead
 from tools.utils import process_model_params
 
@@ -9,54 +9,44 @@ from tools.utils import process_model_params
 max_epoch = 300
 ignore_index = len(CLASSES)
 train_batch_size = 16
-val_batch_size = 16
-
+val_batch_size = 8
 lr = 6e-4
-weight_decay = 0.01
+weight_decay = 2.5e-4
 backbone_lr = 6e-5
-backbone_weight_decay = 0.01
+backbone_weight_decay = 2.5e-4
 num_classes = len(CLASSES)
 classes = CLASSES
 
-weights_name = "resglnet-rlite-256"
+weights_name = "swinglnet-my-256-swin-base"
 weights_path = "model_weights/acdc/{}".format(weights_name)
-test_weights_name = "resglnet-rlite-256"
+test_weights_name = "swinglnet-my-256-swin-base"
 log_name = 'acdc/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
 save_top_k = 1
-save_last = True
+save_last = False
 check_val_every_n_epoch = 1
-pretrained_ckpt_path = None
+pretrained_ckpt_path = None # the path for the pretrained model weight
 gpus = 'auto'  # default or gpu ids:[0] or gpu nums: 2, more setting can refer to pytorch_lightning
+
 resume_ckpt_path = None  # whether continue training with the checkpoint, default None
 
 #  define the network
-# net = UNetFormer(num_classes=num_classes)
-
-net = UNetFormer(
-    backbone_name='swsl_resnet18',
-    pretrained=False,
-    num_classes=4
-)
-
-# 加载自定义预训练权重
-net.load_backbone_weights(
-    weight_path='./pretrain_weights/rest_lite.pth',
-    strict=False
-)
+net = ft_unetformer(num_classes=num_classes, decoder_channels=256)
 
 # define the loss
-loss = UnetFormerLoss(ignore_index=ignore_index)
-use_aux_loss = True
+loss = JointLoss(SoftCrossEntropyLoss(smooth_factor=0.05, ignore_index=ignore_index),
+                 DiceLoss(smooth=0.05, ignore_index=ignore_index), 1.0, 1.0)
+
+use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
+train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/test',
+test_dataset = acdcDataset(data_root='data/acdc/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
@@ -79,4 +69,3 @@ net_params = process_model_params(net, layerwise_params=layerwise_params)
 base_optimizer = torch.optim.AdamW(net_params, lr=lr, weight_decay=weight_decay)
 optimizer = Lookahead(base_optimizer)
 lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=15, T_mult=2)
-
