@@ -990,12 +990,37 @@ def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_chan
                          num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
 
+    # if pretrained and weight_path is not None:
+    #     old_dict = torch.load(weight_path)['state_dict']
+    #     model_dict = model.state_dict()
+    #     old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
+    #     model_dict.update(old_dict)
+    #     model.load_state_dict(model_dict)
+    # return model
     if pretrained and weight_path is not None:
-        old_dict = torch.load(weight_path)['state_dict']
+        try:
+            # 尝试原始加载方式
+            old_dict = torch.load(weight_path)['state_dict']
+        except KeyError:
+            # 如果失败，直接加载文件内容
+            print("权重文件不包含'state_dict'键，尝试直接加载...")
+            old_dict = torch.load(weight_path)
+
+            # 检查是否为字典类型
+            if not isinstance(old_dict, dict):
+                raise ValueError(f"权重文件格式错误: {type(old_dict)}")
+
+            # 检查是否包含模型参数键
+            if not any(k.startswith('encoder') or k.startswith('decoder') for k in old_dict.keys()):
+                print("警告: 权重文件可能不包含模型参数")
+
         model_dict = model.state_dict()
+        # 筛选匹配的键
         old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
+        print(f"加载了 {len(old_dict)}/{len(model_dict)} 个参数")
         model_dict.update(old_dict)
         model.load_state_dict(model_dict)
+
     return model
 
 class SelfAttentionConv2d(nn.Module):
