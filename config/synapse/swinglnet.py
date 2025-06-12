@@ -18,9 +18,9 @@ num_classes = len(CLASSES)
 classes = CLASSES
 
 weights_name = "swinglnet-my-256-swin-base"
-weights_path = "model_weights/acdc/{}".format(weights_name)
+weights_path = "model_weights/synapse/{}".format(weights_name)
 test_weights_name = "swinglnet-my-256-swin-base"
-log_name = 'acdc/{}'.format(weights_name)
+log_name = 'synapse/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
 save_top_k = 1
@@ -28,6 +28,8 @@ save_last = False
 check_val_every_n_epoch = 1
 pretrained_ckpt_path = None # the path for the pretrained model weight
 gpus = 'auto'  # default or gpu ids:[0] or gpu nums: 2, more setting can refer to pytorch_lightning
+
+#   类别为 8，记得在SwinGLNet_my.py中修改类别
 
 resume_ckpt_path = None  # whether continue training with the checkpoint, default None
 
@@ -42,11 +44,11 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/test', mode='test',
+train_dataset = acdcDataset(data_root='data/Synapse/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/test',
+test_dataset = acdcDataset(data_root='data/Synapse/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
