@@ -828,17 +828,34 @@ class WF(nn.Module):
         super(WF, self).__init__()
         self.pre_conv = ConvBN(in_channels, decode_channels, kernel_size=3)
 
+        # 添加 SCSE 模块用于处理残差连接
+        self.scse = SCSEModule(decode_channels)
+
         self.weights = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
         self.eps = eps
         self.post_conv = ConvBNReLU(decode_channels, decode_channels, kernel_size=3)
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        res = self.scse(self.pre_conv(res))
         weights = nn.ReLU()(self.weights)
         fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
         x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
         x = self.post_conv(x)
         return x
+
+class SCSEModule(nn.Module):
+    def __init__(self, ch, re=16):
+        super().__init__()
+        self.cSE = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+                                 nn.Conv2d(ch,ch//re,1),
+                                 nn.ReLU(inplace=True),
+                                 nn.Conv2d(ch//re,ch,1),
+                                 nn.Sigmoid())
+        self.sSE = nn.Sequential(nn.Conv2d(ch,ch,1),
+                                 nn.Sigmoid())
+    def forward(self, x):
+        return x * self.cSE(x) + x * self.sSE(x)
 
 class global_SE(nn.Module):
     def __init__(self, in_channels):

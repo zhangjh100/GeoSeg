@@ -119,6 +119,7 @@ class GlobalLocalAttention(nn.Module):
         self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
                                           groups=1)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
+        self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
         self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
@@ -164,7 +165,7 @@ class GlobalLocalAttention(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
 
-        local = self.local2(x) + self.local1(x)
+        local = self.local3(x) + self.local2(x) + self.local1(x)
 
         x = self.pad(x, self.ws)
         B, C, Hp, Wp = x.shape
@@ -227,13 +228,15 @@ class WF(nn.Module):
     def __init__(self, in_channels=128, decode_channels=128, eps=1e-8):
         super(WF, self).__init__()
         self.pre_conv = Conv(in_channels, decode_channels, kernel_size=1)
-
+        # 添加 SCSE 模块用于处理残差连接
+        self.scse = SCSEModule(decode_channels)
         self.weights = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
         self.eps = eps
         self.post_conv = ConvBNReLU(decode_channels, decode_channels, kernel_size=3)
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
+        res = self.scse(self.pre_conv(res))
         weights = nn.ReLU()(self.weights)
         fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
         x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
