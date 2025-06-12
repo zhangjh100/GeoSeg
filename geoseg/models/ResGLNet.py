@@ -236,8 +236,6 @@ class WF(nn.Module):
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
-        # res = self.scse(self.pre_conv(res))
-        res = self.pre_conv(res)
         weights = nn.ReLU()(self.weights)
         fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
         x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
