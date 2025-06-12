@@ -54,7 +54,7 @@ def val_aug(img, mask):
 
 
 class synapseDataset(Dataset):
-    def __init__(self, data_root='data/Synapse/test', mode='test', img_dir='images', mask_dir='masks',
+    def __init__(self, data_root='data/Synapse/train', mode='train', img_dir='images', mask_dir='masks',
                  img_suffix='.png', mask_suffix='.png', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root

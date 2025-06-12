@@ -8,8 +8,8 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 16
-val_batch_size = 16
+train_batch_size = 8
+val_batch_size = 8
 
 lr = 6e-4
 weight_decay = 0.01
@@ -19,9 +19,9 @@ num_classes = len(CLASSES)
 classes = CLASSES
 
 weights_name = "resglnet-r50-256"
-weights_path = "model_weights/acdc/{}".format(weights_name)
+weights_path = "model_weights/la_2018/{}".format(weights_name)
 test_weights_name = "resglnet-r50-256"
-log_name = 'acdc/{}'.format(weights_name)
+log_name = 'la_2018/{}'.format(weights_name)
 monitor = 'val_F1'
 monitor_mode = 'max'
 save_top_k = 1
@@ -37,7 +37,7 @@ resume_ckpt_path = None  # whether continue training with the checkpoint, defaul
 net = UNetFormer(
     backbone_name='swsl_resnet50',
     pretrained=False,
-    num_classes=4
+    num_classes=2
 )
 
 # 加载自定义预训练权重
@@ -52,11 +52,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/acdc/train', mode='train',
+train_dataset = acdcDataset(data_root='data/la_2018/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/acdc/train',
+test_dataset = acdcDataset(data_root='data/la_2018/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
