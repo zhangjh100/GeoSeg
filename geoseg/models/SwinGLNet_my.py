@@ -719,10 +719,13 @@ class GlobalLocalAttention(nn.Module):
         self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
                                           groups=1)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
+        self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
-        self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1,  padding=(window_size//2 - 1, 0))
-        self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size//2 - 1))
+        self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        self.attn_y1 = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        self.attn_x2 = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        self.attn_y2 = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
 
         self.relative_pos_embedding = relative_pos_embedding
 
@@ -761,7 +764,7 @@ class GlobalLocalAttention(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
 
-        local = self.local2(x) + self.local1(x)
+        local = self.local3(x) + self.local2(x) + self.local1(x)
 
         x = self.pad(x, self.ws)
         B, C, Hp, Wp = x.shape
@@ -786,8 +789,10 @@ class GlobalLocalAttention(nn.Module):
 
         attn = attn[:, :, :H, :W]
 
-        out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-              self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+        out = self.attn_x1(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y1(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect')) + \
+              self.attn_x2(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y2(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
 
         out = out + local
         out = self.pad_out(out)
@@ -974,6 +979,10 @@ class FTUNetFormer(nn.Module):
         encoder_channels = [embed_dim, embed_dim*2, embed_dim*4, embed_dim*8]
         self.decoder = Decoder(encoder_channels, decode_channels, dropout, window_size, num_classes)
 
+    #   new added module like SSRS
+    def _make_pred_layer(self, block, inplanes, dilation_series, padding_series, num_classes):
+        return block(inplanes, dilation_series, padding_series, num_classes)
+
     def forward(self, x):
         h, w = x.size()[-2:]
         res1, res2, res3, res4 = self.backbone(x)
@@ -989,38 +998,42 @@ def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_chan
                          depths=(2, 2, 18, 2),
                          num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
-
     # if pretrained and weight_path is not None:
-    #     old_dict = torch.load(weight_path)['state_dict']
+    #     try:
+    #         # 尝试原始加载方式
+    #         old_dict = torch.load(weight_path)['state_dict']
+    #     except KeyError:
+    #         # 如果失败，直接加载文件内容
+    #         print("权重文件不包含'state_dict'键，尝试直接加载...")
+    #         old_dict = torch.load(weight_path)
+    #
+    #         # 检查是否为字典类型
+    #         if not isinstance(old_dict, dict):
+    #             raise ValueError(f"权重文件格式错误: {type(old_dict)}")
+    #
+    #         # 检查是否包含模型参数键
+    #         if not any(k.startswith('encoder') or k.startswith('decoder') for k in old_dict.keys()):
+    #             print("警告: 权重文件可能不包含模型参数")
+
     #     model_dict = model.state_dict()
+    #     # 筛选匹配的键
     #     old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
+    #     print(f"加载了 {len(old_dict)}/{len(model_dict)} 个参数")
     #     model_dict.update(old_dict)
     #     model.load_state_dict(model_dict)
+    #
     # return model
     if pretrained and weight_path is not None:
-        try:
-            # 尝试原始加载方式
-            old_dict = torch.load(weight_path)['state_dict']
-        except KeyError:
-            # 如果失败，直接加载文件内容
-            print("权重文件不包含'state_dict'键，尝试直接加载...")
-            old_dict = torch.load(weight_path)
-
-            # 检查是否为字典类型
-            if not isinstance(old_dict, dict):
-                raise ValueError(f"权重文件格式错误: {type(old_dict)}")
-
-            # 检查是否包含模型参数键
-            if not any(k.startswith('encoder') or k.startswith('decoder') for k in old_dict.keys()):
-                print("警告: 权重文件可能不包含模型参数")
-
+        # old_dict = torch.load(weight_path)['state_dict']
+        old_dict = torch.load(weight_path)['model']
         model_dict = model.state_dict()
-        # 筛选匹配的键
-        old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
-        print(f"加载了 {len(old_dict)}/{len(model_dict)} 个参数")
+        del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
+        for k in del_keys:
+            del old_dict[k]
+        old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
         model_dict.update(old_dict)
-        model.load_state_dict(model_dict)
-
+        # model.load_state_dict(model_dict)
+        print('Load weight ', weight_path)
     return model
 
 class SelfAttentionConv2d(nn.Module):
