@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 from geoseg.losses import *
-from geoseg.datasets.acdc_dataset import *
+from geoseg.datasets.la_dataset import *
 from geoseg.models.ResGLNet import UNetFormer
 from tools.utils import Lookahead
 from tools.utils import process_model_params
@@ -52,11 +52,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = acdcDataset(data_root='data/la_2018/train', mode='train',
+train_dataset = laDataset(data_root='data/la_2018/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
-val_dataset = acdcDataset(transform=val_aug)
-test_dataset = acdcDataset(data_root='data/la_2018/train',
+val_dataset = laDataset(transform=val_aug)
+test_dataset = laDataset(data_root='data/la_2018/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
