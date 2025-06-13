@@ -8,7 +8,7 @@ from tools.utils import process_model_params
 # training hparam
 max_epoch = 300
 ignore_index = len(CLASSES)
-train_batch_size = 16
+train_batch_size = 8
 val_batch_size = 8
 
 lr = 6e-4
@@ -52,11 +52,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = rvDataset(data_root='data/rv/train', mode='train',
+train_dataset = rvDataset(data_root='data/rv/test', mode='test',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = rvDataset(transform=val_aug)
-test_dataset = rvDataset(data_root='data/rv/train',
+test_dataset = rvDataset(data_root='data/rv/test',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
