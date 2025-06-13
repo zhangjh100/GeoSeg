@@ -52,11 +52,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = synapseDataset(data_root='data/Synapse/test', mode='test',
+train_dataset = synapseDataset(data_root='data/Synapse/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = synapseDataset(transform=val_aug)
-test_dataset = synapseDataset(data_root='data/Synapse/test',
+test_dataset = synapseDataset(data_root='data/Synapse/train',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
