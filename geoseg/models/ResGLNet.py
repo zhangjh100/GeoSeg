@@ -118,8 +118,8 @@ class GlobalLocalAttention(nn.Module):
         # self.local1 = ConvBN(dim, dim, kernel_size=3)
         self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
                                           groups=1)
-        self.local2 = ConvBN(dim, dim, kernel_size=1)
-        self.local3 = ConvBN(dim, dim, kernel_size=3)
+        # self.local2 = ConvBN(dim, dim, kernel_size=1)
+        # self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
         self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
