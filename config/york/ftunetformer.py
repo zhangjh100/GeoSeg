@@ -42,7 +42,7 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = yorkDataset(data_root='data/york/test', mode='test',
+train_dataset = yorkDataset(data_root='data/york/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = yorkDataset(transform=val_aug)

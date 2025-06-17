@@ -54,7 +54,7 @@ def val_aug(img, mask):
 
 
 class laDataset(Dataset):
-    def __init__(self, data_root='data/la_2018/train', mode='train', img_dir='train_images', mask_dir='train_masks_convert',
+    def __init__(self, data_root='data/la_2018/train', mode='train', img_dir='images', mask_dir='masks_convert',
                  img_suffix='.tif', mask_suffix='.tif', transform=val_aug, mosaic_ratio=0.0,
                  img_size=ORIGIN_IMG_SIZE):
         self.data_root = data_root

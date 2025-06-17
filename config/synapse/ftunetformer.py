@@ -42,7 +42,7 @@ use_aux_loss = False
 
 # define the dataloader
 
-train_dataset = synapseDataset(data_root='data/Synapse/test', mode='test',
+train_dataset = synapseDataset(data_root='data/Synapse/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = synapseDataset(transform=val_aug)

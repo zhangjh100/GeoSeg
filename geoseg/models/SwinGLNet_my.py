@@ -716,8 +716,8 @@ class GlobalLocalAttention(nn.Module):
 
         self.qkv = Conv(dim, 3*dim, kernel_size=1, bias=qkv_bias)
         # self.local1 = ConvBN(dim, dim, kernel_size=3)
-        self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
-                                          groups=1)
+        # self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
+        #                                   groups=1)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
         self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
@@ -764,7 +764,7 @@ class GlobalLocalAttention(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
 
-        local = self.local3(x) + self.local2(x) + self.local1(x)
+        local = self.local3(x) + self.local2(x)
 
         x = self.pad(x, self.ws)
         B, C, Hp, Wp = x.shape
@@ -886,12 +886,12 @@ class FeatureRefinementHead(nn.Module):
 
         self.pa = nn.Sequential(nn.Conv2d(decode_channels, decode_channels, kernel_size=3, padding=1, groups=decode_channels),
                                 nn.Sigmoid())
-        self.ca = global_SE(decode_channels)
-        # self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
-        #                         Conv(decode_channels, decode_channels//16, kernel_size=1),
-        #                         nn.ReLU6(),
-        #                         Conv(decode_channels//16, decode_channels, kernel_size=1),
-        #                         nn.Sigmoid())
+        # self.ca = global_SE(decode_channels)
+        self.ca = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+                                Conv(decode_channels, decode_channels//16, kernel_size=1),
+                                nn.ReLU6(),
+                                Conv(decode_channels//16, decode_channels, kernel_size=1),
+                                nn.Sigmoid())
 
         self.shortcut = ConvBN(decode_channels, decode_channels, kernel_size=1)
         self.proj = SeparableConvBN(decode_channels, decode_channels, kernel_size=3)

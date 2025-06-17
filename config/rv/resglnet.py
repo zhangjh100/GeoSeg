@@ -52,11 +52,11 @@ use_aux_loss = True
 
 # define the dataloader
 
-train_dataset = rvDataset(data_root='data/rv/test-2', mode='test',
+train_dataset = rvDataset(data_root='data/rv/train', mode='train',
                                  mosaic_ratio=0.25, transform=train_aug)
 
 val_dataset = rvDataset(transform=val_aug)
-test_dataset = rvDataset(data_root='data/rv/test-2',
+test_dataset = rvDataset(data_root='data/rv/test-1',
                                 transform=val_aug)
 
 train_loader = DataLoader(dataset=train_dataset,
