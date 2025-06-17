@@ -716,10 +716,10 @@ class GlobalLocalAttention(nn.Module):
 
         self.qkv = Conv(dim, 3*dim, kernel_size=1, bias=qkv_bias)
         # self.local1 = ConvBN(dim, dim, kernel_size=3)
-        # self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
-        #                                   groups=1)
+        self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
+                                          groups=1)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
-        self.local3 = ConvBN(dim, dim, kernel_size=3)
+        # self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
         self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
@@ -764,7 +764,7 @@ class GlobalLocalAttention(nn.Module):
     def forward(self, x):
         B, C, H, W = x.shape
 
-        local = self.local3(x) + self.local2(x)
+        local = self.local2(x) + self.local1(x)
 
         x = self.pad(x, self.ws)
         B, C, Hp, Wp = x.shape
@@ -968,18 +968,24 @@ class Decoder(nn.Module):
         self.segmentation_head = nn.Sequential(ConvBNReLU(decode_channels, decode_channels),
                                                nn.Dropout2d(p=dropout, inplace=True),
                                                Conv(decode_channels, num_classes, kernel_size=1))
+        self.scse = SCSEModule(decode_channels)
         self.init_weight()
 
     def forward(self, res1, res2, res3, res4, h, w):
 
         x = self.b4(self.pre_conv(res4))
+        x = self.scse(x)
+
         x = self.p3(x, res3)
         x = self.b3(x)
+        x = self.scse(x)
 
         x = self.p2(x, res2)
         x = self.b2(x)
+        x = self.scse(x)
 
         x = self.p1(x, res1)
+        x = self.scse(x)
 
         x = self.segmentation_head(x)
         x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=False)
@@ -1031,31 +1037,7 @@ def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_chan
                          depths=(2, 2, 18, 2),
                          num_heads=(4, 8, 16, 32),
                          decode_channels=decoder_channels)
-    # if pretrained and weight_path is not None:
-    #     try:
-    #         # 尝试原始加载方式
-    #         old_dict = torch.load(weight_path)['state_dict']
-    #     except KeyError:
-    #         # 如果失败，直接加载文件内容
-    #         print("权重文件不包含'state_dict'键，尝试直接加载...")
-    #         old_dict = torch.load(weight_path)
-    #
-    #         # 检查是否为字典类型
-    #         if not isinstance(old_dict, dict):
-    #             raise ValueError(f"权重文件格式错误: {type(old_dict)}")
-    #
-    #         # 检查是否包含模型参数键
-    #         if not any(k.startswith('encoder') or k.startswith('decoder') for k in old_dict.keys()):
-    #             print("警告: 权重文件可能不包含模型参数")
 
-    #     model_dict = model.state_dict()
-    #     # 筛选匹配的键
-    #     old_dict = {k: v for k, v in old_dict.items() if (k in model_dict)}
-    #     print(f"加载了 {len(old_dict)}/{len(model_dict)} 个参数")
-    #     model_dict.update(old_dict)
-    #     model.load_state_dict(model_dict)
-    #
-    # return model
     if pretrained and weight_path is not None:
         # old_dict = torch.load(weight_path)['state_dict']
         old_dict = torch.load(weight_path)['model']
