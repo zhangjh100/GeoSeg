@@ -722,10 +722,13 @@ class GlobalLocalAttention(nn.Module):
         # self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
-        self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
-        self.attn_y1 = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
-        self.attn_x2 = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
-        self.attn_y2 = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        # self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        # self.attn_y1 = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        # self.attn_x2 = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        # self.attn_y2 = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+
+        self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
 
         self.relative_pos_embedding = relative_pos_embedding
 
@@ -789,10 +792,13 @@ class GlobalLocalAttention(nn.Module):
 
         attn = attn[:, :, :H, :W]
 
-        out = self.attn_x1(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-              self.attn_y1(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect')) + \
-              self.attn_x2(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-              self.attn_y2(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+        # out = self.attn_x1(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+        #       self.attn_y1(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect')) + \
+        #       self.attn_x2(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+        #       self.attn_y2(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+
+        out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
 
         out = out + local
         out = self.pad_out(out)
@@ -863,10 +869,15 @@ class WF(nn.Module):
 class SCSEModule(nn.Module):
     def __init__(self, ch, re=16):
         super().__init__()
-        self.cSE = nn.Sequential(nn.AdaptiveAvgPool2d(1),
-                                 nn.Conv2d(ch,ch//re,1),
+        # self.cSE = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+        #                          nn.Conv2d(ch,ch//re,1),
+        #                          nn.ReLU(inplace=True),
+        #                          nn.Conv2d(ch//re,ch,1),
+        #                          nn.Sigmoid())
+        self.cSE = nn.Sequential(nn.AdaptiveMaxPool2d(1),
+                                 nn.Conv2d(ch, ch // re, 1),
                                  nn.ReLU(inplace=True),
-                                 nn.Conv2d(ch//re,ch,1),
+                                 nn.Conv2d(ch // re, ch, 1),
                                  nn.Sigmoid())
         self.sSE = nn.Sequential(nn.Conv2d(ch,ch,1),
                                  nn.Sigmoid())
