@@ -1078,7 +1078,8 @@ def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_chan
                      decode_channels=decoder_channels)
 
     if pretrained and weight_path is not None:
-        old_dict = torch.load(weight_path)['model']
+        old_dict = torch.load(weight_path)['state_dict']
+        # old_dict = torch.load(weight_path)['model']
         model_dict = model.state_dict()
         old_dict = {'backbone.' + k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
         model_dict.update(old_dict)
