@@ -1053,7 +1053,7 @@ class FTUNetFormer(nn.Module):
 #         print('Load weight ', weight_path)
 #     return model
 
-def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_channels=256,
+def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_channels=256,
                           #   weight_path='pretrain/stseg_base.pth'):
     weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
 
@@ -1078,8 +1078,8 @@ def ft_unetformer(pretrained=True, num_classes=6, freeze_stages=-1, decoder_chan
                      decode_channels=decoder_channels)
 
     if pretrained and weight_path is not None:
-        old_dict = torch.load(weight_path)['state_dict']
-        # old_dict = torch.load(weight_path)['model']
+        # old_dict = torch.load(weight_path)['state_dict']
+        old_dict = torch.load(weight_path)['model']
         model_dict = model.state_dict()
         old_dict = {'backbone.' + k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
         model_dict.update(old_dict)
