@@ -857,12 +857,13 @@ class WF(nn.Module):
         self.weights = nn.Parameter(torch.ones(2, dtype=torch.float32), requires_grad=True)
         self.eps = eps
         self.post_conv = ConvBNReLU(decode_channels, decode_channels, kernel_size=3)
+        self.scse = SCSEModule(decode_channels)
 
     def forward(self, x, res):
         x = F.interpolate(x, scale_factor=2, mode='bilinear', align_corners=False)
         weights = nn.ReLU()(self.weights)
         fuse_weights = weights / (torch.sum(weights, dim=0) + self.eps)
-        x = fuse_weights[0] * self.pre_conv(res) + fuse_weights[1] * x
+        x = fuse_weights[0] * self.scse(self.pre_conv(res)) + fuse_weights[1] * x
         x = self.post_conv(x)
         return x
 
@@ -974,24 +975,19 @@ class Decoder(nn.Module):
         self.segmentation_head = nn.Sequential(ConvBNReLU(decode_channels, decode_channels),
                                                nn.Dropout2d(p=dropout, inplace=True),
                                                Conv(decode_channels, num_classes, kernel_size=1))
-        self.scse = SCSEModule(decode_channels)
         self.init_weight()
 
     def forward(self, res1, res2, res3, res4, h, w):
 
         x = self.b4(self.pre_conv(res4))
-        x = self.scse(x)
 
         x = self.p3(x, res3)
         x = self.b3(x)
-        x = self.scse(x)
 
         x = self.p2(x, res2)
         x = self.b2(x)
-        x = self.scse(x)
 
         x = self.p1(x, res1)
-        x = self.scse(x)
 
         x = self.segmentation_head(x)
         x = F.interpolate(x, size=(h, w), mode='bilinear', align_corners=False)
