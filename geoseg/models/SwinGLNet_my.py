@@ -177,7 +177,7 @@ class SwinTransformerBlock(nn.Module):
 
     def __init__(self, dim, num_heads, window_size=7, shift_size=0,
                  mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.,
-                 act_layer=nn.GELU, norm_layer=nn.LayerNorm):
+                 act_layer=nn.GELU, norm_layer=nn.LayerNorm, use_scse=True, reduction=16):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
@@ -199,7 +199,9 @@ class SwinTransformerBlock(nn.Module):
         self.H = None
         self.W = None
 
-        self.sc = SCSEModule(dim)
+        self.use_scse = use_scse
+        if use_scse:
+            self.use_scse = SCSEModule(dim, re=reduction)
 
     def forward(self, x, mask_matrix):
         """ Forward function.
@@ -254,11 +256,15 @@ class SwinTransformerBlock(nn.Module):
 
         x = x.view(B, H * W, C)
 
+        if self.use_scse:
+            x_scse = x.view(B, H, W, C).permute(0, 3, 1, 2).contiguous()
+            x_scse = self.use_scse(x_scse)
+            x = x_scse.permute(0, 2, 3, 1).contiguous().view(B, H * W, C)
+
         # FFN
         x = shortcut + self.drop_path(x)
         x = x + self.drop_path(self.mlp(self.norm2(x)))
 
-        x = self.sc(x)
 
         return x
 
