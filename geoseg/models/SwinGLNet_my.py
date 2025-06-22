@@ -199,6 +199,8 @@ class SwinTransformerBlock(nn.Module):
         self.H = None
         self.W = None
 
+        self.sc = SCSEModule(dim)
+
     def forward(self, x, mask_matrix):
         """ Forward function.
 
@@ -255,6 +257,8 @@ class SwinTransformerBlock(nn.Module):
         # FFN
         x = shortcut + self.drop_path(x)
         x = x + self.drop_path(self.mlp(self.norm2(x)))
+
+        x = self.sc(x)
 
         return x
 
@@ -1031,61 +1035,28 @@ class FTUNetFormer(nn.Module):
         return x
 
 
-# def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_channels=256,
-#                   weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
-#     model = FTUNetFormer(num_classes=num_classes,
-#                          freeze_stages=freeze_stages,
-#                          embed_dim=128,
-#                          depths=(2, 2, 18, 2),
-#                          num_heads=(4, 8, 16, 32),
-#                          decode_channels=decoder_channels)
-#
-#     if pretrained and weight_path is not None:
-#         # old_dict = torch.load(weight_path)['state_dict']
-#         old_dict = torch.load(weight_path)['model']
-#         model_dict = model.state_dict()
-#         del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
-#         for k in del_keys:
-#             del old_dict[k]
-#         old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
-#         model_dict.update(old_dict)
-#         # model.load_state_dict(model_dict)
-#         print('Load weight ', weight_path)
-#     return model
-
 def ft_unetformer(pretrained=True, num_classes=4, freeze_stages=-1, decoder_channels=256,
-                          #   weight_path='pretrain/stseg_base.pth'):
-    weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
-
-
+                  weight_path='pretrain_weights/swinv2_base_patch4_window16_256.pth'):
     model = FTUNetFormer(num_classes=num_classes,
-                     freeze_stages=freeze_stages,
-                     ### swin_small
-                     #  embed_dim=96,
-                     #  depths=(2, 2, 18, 2),
-                     #  num_heads=(3, 6, 12, 24),
-
-                     ## swin_base
-                     embed_dim=128,
-                     depths=(2, 2, 18, 2),
-                     num_heads=(4, 8, 16, 32),
-
-                     # ### swin_large
-                     #  embed_dim=192,
-                     #  depths=(2, 2, 18, 2),
-                     #  num_heads=(6, 12, 24, 48),
-
-                     decode_channels=decoder_channels)
+                         freeze_stages=freeze_stages,
+                         embed_dim=128,
+                         depths=(2, 2, 18, 2),
+                         num_heads=(4, 8, 16, 32),
+                         decode_channels=decoder_channels)
 
     if pretrained and weight_path is not None:
         # old_dict = torch.load(weight_path)['state_dict']
         old_dict = torch.load(weight_path)['model']
         model_dict = model.state_dict()
-        old_dict = {'backbone.' + k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
+        del_keys = ['layers.0.blocks.1.attn_mask', 'layers.1.blocks.1.attn_mask', 'layers.3.blocks.0.attn.relative_coords_table', 'layers.3.blocks.0.attn.relative_position_index', 'layers.3.blocks.1.attn.relative_coords_table', 'layers.3.blocks.1.attn.relative_position_index']
+        for k in del_keys:
+            del old_dict[k]
+        old_dict = {'backbone.'+ k: v for k, v in old_dict.items() if ('backbone.' + k in model_dict)}
         model_dict.update(old_dict)
-        model.load_state_dict(model_dict)
+        # model.load_state_dict(model_dict)
         print('Load weight ', weight_path)
     return model
+
 
 class SelfAttentionConv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size,
