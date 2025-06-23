@@ -725,20 +725,20 @@ class GlobalLocalAttention(nn.Module):
         self.ws = window_size
 
         self.qkv = Conv(dim, 3*dim, kernel_size=1, bias=qkv_bias)
-        # self.local1 = ConvBN(dim, dim, kernel_size=3)
-        self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
-                                          groups=1)
+        self.local1 = ConvBN(dim, dim, kernel_size=3)
+        # self.local1 = SelfAttentionConv2d(in_channels=dim, out_channels=dim, kernel_size=3, stride=1, padding=1,
+        #                                   groups=1)
         self.local2 = ConvBN(dim, dim, kernel_size=1)
         # self.local3 = ConvBN(dim, dim, kernel_size=3)
         self.proj = SeparableConvBN(dim, dim, kernel_size=window_size)
 
-        # self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
-        # self.attn_y1 = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
-        # self.attn_x2 = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
-        # self.attn_y2 = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        self.attn_x1 = nn.MaxPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        self.attn_y1 = nn.MaxPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        self.attn_x2 = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        self.attn_y2 = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
 
-        self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
-        self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
+        # self.attn_x = nn.AvgPool2d(kernel_size=(window_size, 1), stride=1, padding=(window_size // 2 - 1, 0))
+        # self.attn_y = nn.AvgPool2d(kernel_size=(1, window_size), stride=1, padding=(0, window_size // 2 - 1))
 
         self.relative_pos_embedding = relative_pos_embedding
 
@@ -802,13 +802,13 @@ class GlobalLocalAttention(nn.Module):
 
         attn = attn[:, :, :H, :W]
 
-        # out = self.attn_x1(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-        #       self.attn_y1(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect')) + \
-        #       self.attn_x2(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-        #       self.attn_y2(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+        out = self.attn_x1(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y1(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect')) + \
+              self.attn_x2(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+              self.attn_y2(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
 
-        out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
-              self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
+        # out = self.attn_x(F.pad(attn, pad=(0, 0, 0, 1), mode='reflect')) + \
+        #       self.attn_y(F.pad(attn, pad=(0, 1, 0, 0), mode='reflect'))
 
         out = out + local
         out = self.pad_out(out)
